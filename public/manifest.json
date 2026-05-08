@@ -1,0 +1,15 @@
+{
+  "name": "徳本上人 名号碑めぐり",
+  "short_name": "名号碑めぐり",
+  "description": "全国の徳本上人 名号碑をめぐるデジタルスタンプラリー",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1c1917",
+  "theme_color": "#92400e",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icons/icon-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512x512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
