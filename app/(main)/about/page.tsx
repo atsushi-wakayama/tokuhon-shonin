@@ -1,44 +1,92 @@
 export default function AboutPage() {
   return (
-    <article className="mx-auto max-w-md px-4 py-6 prose prose-stone prose-sm">
-      {/* 見出しと視覚的な装飾 */}
-      <div className="mb-6 rounded-2xl bg-amber-700 px-6 py-8 text-center text-white not-prose">
-        <p className="mb-1 text-xs tracking-widest text-amber-300">徳本文字</p>
-        <p className="text-3xl font-bold tracking-widest">南無阿弥陀仏</p>
-        <p className="mt-3 text-sm text-amber-200">徳本上人（1758〜1818）</p>
+    <div
+      className="min-h-screen pb-8"
+      style={{ backgroundImage: 'url(/bg-pattern.png)', backgroundSize: '320px', backgroundRepeat: 'repeat', backgroundColor: '#f5f0eb' }}
+    >
+      <div className="mx-auto max-w-md space-y-4 px-4 pt-5">
+
+        {/* 徳本上人とは */}
+        <div className="rounded-2xl p-4" style={{ border: '2px solid #d4c5b0', overflow: 'auto', backgroundColor: 'rgba(255,255,255,0.8)' }}>
+          {/* 道具：右上に float */}
+          <img src="/tokuhon-items.png" alt="旅の道具"
+            style={{ float: 'right', height: '7rem', width: 'auto', marginLeft: '10px', marginBottom: '4px' }} />
+
+          <h2 className="mb-2 text-lg" style={{ color: '#423629' }}>徳本上人とは</h2>
+
+          <p className="text-base leading-relaxed" style={{ color: '#5a5a5a' }}>
+            江戸時代後期に活躍した浄土宗の僧侶（生没年は1758～1818年）。紀伊国（現在の和歌山県）出身で、独自の書体による「南無阿弥陀仏」の名号を全国に広めた「念仏行者」として知られています。民衆からも熱烈な支持を受けた名僧で、その教えは「流行神（はやりがみ）」と言われるほどブームになりました。
+          </p>
+
+          {/* 僧侶：左下に float（テキストの後に配置） */}
+          <img src="/tokuhon-monk.png" alt="徳本上人"
+            style={{ float: 'left', height: '9rem', width: 'auto', marginRight: '10px', marginTop: '4px' }} />
+
+          <p className="text-base leading-relaxed" style={{ color: '#5a5a5a' }}>
+            文化9年（1812）に和歌山の総持寺で7日間の修行の際、2万人の参詣者と200隻の参詣船が集まったと記録されています。
+          </p>
+        </div>
+
+        {/* 木食の行 */}
+        <div className="rounded-2xl p-5 shadow-sm" style={{ border: '2px solid #d4c5b0', backgroundColor: 'rgba(255,255,255,0.8)' }}>
+          <h2 className="mb-3 flex items-center gap-2 text-lg" style={{ color: '#423629' }}>
+            木食の行（もくじきのぎょう）
+          </h2>
+          <p className="mb-4 text-base leading-relaxed" style={{ color: '#5a5a5a' }}>
+            穀物を断ち、木の実や木の皮だけを食べながら修行する苦行。この厳しい修行を通じて心身を清め、全国へ念仏を広めていきました。
+          </p>
+
+          {/* 図解エリア */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl p-3 text-center" style={{ backgroundColor: 'rgba(255,255,255,0.8)', border: '1px solid #d4c5b0' }}>
+              <p className="mb-2 text-sm" style={{ color: '#423629' }}>✅ 許された食べ物</p>
+              <img src="/food-allowed.png" alt="許された食べ物" className="mx-auto h-24 w-auto" />
+              <p className="mt-2 text-xs" style={{ color: '#5a5a5a' }}>木の実・きのこ・山菜</p>
+            </div>
+            <div className="rounded-xl p-3 text-center" style={{ backgroundColor: 'rgba(255,255,255,0.8)', border: '1px solid #d4c5b0' }}>
+              <p className="mb-2 text-sm" style={{ color: '#423629' }}>❌ 断たれた食べ物</p>
+              <img src="/food-prohibited.png" alt="断たれた食べ物" className="mx-auto h-24 w-auto" />
+              <p className="mt-2 text-xs" style={{ color: '#5a5a5a' }}>お米・小麦・豆類</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 徳本文字 */}
+        <div className="rounded-2xl p-5 shadow-sm" style={{ border: '2px solid #d4c5b0', backgroundColor: 'rgba(255,255,255,0.8)', overflow: 'auto' }}>
+          <h2 className="mb-3 text-lg" style={{ color: '#423629' }}>
+            徳本文字
+          </h2>
+          {/* キャラアイコン：右下に float */}
+          <img src="/tokuhon-writer.png" alt="徳本文字を書く上人"
+            style={{ float: 'right', height: '9rem', width: 'auto', marginLeft: '10px', marginTop: '4px' }} />
+          <p className="text-base leading-relaxed" style={{ color: '#5a5a5a' }}>
+            通常の楷書とは異なる独特な丸みを帯びた書体で、特に終筆（最後の筆の運び）が跳ね上がるスタイル。優しく特徴的な字体が「縁起が良い」とされ、全国で<span style={{ color: '#b35c44' }}>1,500基以上</span>の石碑（名号碑）に刻まれている。
+          </p>
+        </div>
+
+        {/* 全国巡礼 */}
+        <div className="rounded-2xl p-5 shadow-sm" style={{ border: '2px solid #d4c5b0', backgroundColor: 'rgba(255,255,255,0.8)' }}>
+          <h2 className="mb-3 text-lg" style={{ color: '#423629' }}>
+            全国巡礼の旅
+          </h2>
+          <img src="/tokuhon-journey.png" alt="全国巡礼" className="w-full rounded-xl mb-3" />
+          <p className="text-base leading-relaxed" style={{ color: '#5a5a5a' }}>
+            寛政6年（1794）頃から約20年かけて近畿、東海、関東、北陸、信州など全国を巡礼し、各地で念仏を広めました。40代以降は江戸（伝通院）を拠点に念仏布教を行い、関東地方を広く巡回しました。
+          </p>
+        </div>
+
+        {/* 参拝マナー */}
+        <div className="rounded-2xl p-5 shadow-sm" style={{ border: '2px solid #d4c5b0', backgroundColor: 'rgba(255,255,255,0.8)' }}>
+          <h2 className="mb-3 text-lg" style={{ color: '#423629' }}>
+            名号碑めぐりのマナー
+          </h2>
+          <p className="mb-4 text-base leading-relaxed" style={{ color: '#5a5a5a' }}>
+            名号碑の多くは寺院の境内や墓地の一角に静かに立っています。周囲への配慮を忘れず、大切に保存されてきた石碑を傷つけないよう心がけてください。
+          </p>
+          <img src="/tokuhon-manner.png" alt="名号碑めぐりのマナー" className="w-full rounded-xl" />
+        </div>
+
       </div>
-
-      <h2>徳本上人とは</h2>
-      <p>
-        徳本上人（とくほんしょうにん、1758〜1818）は、江戸時代後期に活躍した浄土宗の僧侶です。
-        紀伊国（現在の和歌山県）出身で、独自の書体による「南無阿弥陀仏」の名号を全国に広めた「念仏行者」として知られています。
-      </p>
-
-      <h2>木食の行（もくじきのぎょう）</h2>
-      <p>
-        徳本上人が実践した苦行で、穀物を一切口にせず木の実や木の皮などだけを食べながら修行する行のことを「木食の行」と呼びます。
-        この厳しい修行を通じて霊力を高め、念仏を広めていったとされています。
-      </p>
-
-      <h2>徳本文字（とくほんもじ）</h2>
-      <p>
-        徳本上人が書いた「南無阿弥陀仏」の文字は、通常の楷書とは異なる独特の書体で、
-        「徳本文字」と呼ばれています。文字が躍動感にあふれ、見る者に念仏の力強さを感じさせます。
-        この書体で刻まれた石碑が「名号碑」であり、全国に1,500基以上が現存するとされています。
-      </p>
-
-      <h2>全国巡礼の旅</h2>
-      <p>
-        徳本上人は生涯を通じて全国を巡礼し、各地で念仏を広めました。
-        江戸への布教活動では増上寺などを拠点とし、関東一円に多くの信者を獲得しました。
-        晩年は東北地方にも足を伸ばし、各地に名号碑を残しました。
-      </p>
-
-      <h2>名号碑めぐりを楽しむために</h2>
-      <p>
-        名号碑の多くは寺院の境内、墓地の一角、あるいは道路脇などに静かに立っています。
-        参拝の際は周囲の方々への配慮を忘れず、大切に保存されてきた石碑を傷つけないよう心がけてください。
-      </p>
-    </article>
+    </div>
   )
 }

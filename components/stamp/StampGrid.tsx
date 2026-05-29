@@ -8,10 +8,11 @@ interface Props {
 export function StampGrid({ stamps }: Props) {
   if (stamps.length === 0) {
     return (
-      <div className="flex flex-col items-center py-16 text-stone-400">
-        <p className="text-4xl">南無阿弥陀仏</p>
-        <p className="mt-4 text-sm">まだスタンプがありません</p>
-        <p className="text-sm">名号碑を訪れてチェックインしましょう</p>
+      <div className="flex flex-col items-center py-16">
+        <div className="rounded-xl px-5 py-4 text-center" style={{ backgroundColor: 'rgba(255,255,255,0.8)' }}>
+          <p className="text-base" style={{ color: '#423629' }}>まだスタンプがありません</p>
+          <p className="mt-1 text-base" style={{ color: '#5a5a5a' }}>名号碑を訪れてチェックインしましょう</p>
+        </div>
       </div>
     )
   }

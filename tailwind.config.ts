@@ -10,7 +10,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        serif: ['var(--font-serif)', 'serif'],
+        sans: ["'Yusei Magic'", 'sans-serif'],
+        serif: ["'Yusei Magic'", 'sans-serif'],
       },
     },
   },

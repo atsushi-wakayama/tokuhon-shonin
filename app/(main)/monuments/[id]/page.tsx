@@ -1,89 +1,135 @@
 import { notFound } from 'next/navigation'
-import { MapPin, Navigation, ArrowLeft } from 'lucide-react'
+import { MapPin, Navigation, ArrowLeft, BookOpen } from 'lucide-react'
 import Link from 'next/link'
 import { CheckInButton } from './CheckInButton'
-import { MOCK_MONUMENTS } from '@/lib/mock/monuments'
 import { createClient } from '@/lib/supabase/server'
+import type { MonumentWithArea } from '@/lib/types/database.types'
 
 export default async function MonumentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const monument = MOCK_MONUMENTS.find((m) => m.id === id)
+  const supabase = await createClient()
+
+  const { data: monument } = await supabase
+    .from('monuments')
+    .select('*, area:areas(*)')
+    .eq('id', id)
+    .single()
+
   if (!monument) notFound()
 
-  const supabase = await createClient()
+  const m = monument as MonumentWithArea
+
+  const { count: prevCount } = await supabase
+    .from('monuments')
+    .select('id', { count: 'exact', head: true })
+    .lt('name', m.name)
+
+  const monumentNo = String((prevCount ?? 0) + 1).padStart(2, '0')
+
   const { data: { user } } = await supabase.auth.getUser()
 
-  // スタンプ取得済みか確認
   let isStamped = false
   if (user) {
-    const { data } = await supabase
-      .from('stamps')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('monument_id', id)
-      .single()
+    const { data } = await supabase.from('stamps').select('id').eq('user_id', user.id).eq('monument_id', id).single()
     isStamped = !!data
   }
 
+  const washibg = [
+    'repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(160,130,100,0.12) 19px, rgba(160,130,100,0.12) 20px)',
+    'repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(160,130,100,0.12) 19px, rgba(160,130,100,0.12) 20px)',
+  ].join(', ')
+
   return (
-    <div className="mx-auto max-w-md">
-      {/* ヘッダー */}
-      <div className="relative flex h-48 w-full items-center justify-center bg-gradient-to-b from-amber-900 to-stone-800">
-        <p className="text-5xl font-bold tracking-[0.5em] text-amber-100">南無</p>
-        <Link
-          href="/monuments"
-          className="absolute left-4 top-4 rounded-full bg-white/90 p-2 shadow"
-        >
-          <ArrowLeft size={20} className="text-stone-700" />
-        </Link>
-        {isStamped && (
-          <div className="absolute right-4 top-4 rounded-full bg-amber-700 px-3 py-1 text-xs font-bold text-white shadow">
-            スタンプ済み
+    <div className="min-h-screen" style={{ backgroundImage: 'url(/bg-pattern.png)', backgroundSize: '320px', backgroundRepeat: 'repeat', backgroundColor: '#f5f0eb' }}>
+      <div className="mx-auto max-w-md">
+
+        {/* ヘッダー：和紙テクスチャ */}
+        <div className="relative px-4 pb-5 pt-4" style={{ backgroundColor: '#faf7f0', backgroundImage: washibg }}>
+
+          {/* 戻るボタン */}
+          <Link href="/monuments" className="inline-flex items-center justify-center rounded-full p-2 shadow-sm"
+            style={{ backgroundColor: 'rgba(255,255,255,0.85)', border: '1px solid #d4c5b0' }}>
+            <ArrowLeft size={18} style={{ color: '#4a3a2a' }} />
+          </Link>
+
+          {/* 朱印スタンプ */}
+          <div className="absolute right-5 top-4" style={{ transform: 'rotate(3deg)' }}>
+            <div className="px-2 py-1 text-center text-xs leading-snug"
+              style={{ border: '2px solid #C0392B', color: '#C0392B', letterSpacing: '0.08em', lineHeight: '1.5' }}>
+              <div>徳本</div>
+              <div>上人</div>
+              <div>霊場</div>
+            </div>
           </div>
-        )}
-      </div>
 
-      <div className="px-4 py-5">
-        <h1 className="text-xl font-bold text-stone-800">{monument.name}</h1>
-
-        <div className="mt-2 flex flex-wrap gap-2">
-          <span className="flex items-center gap-1 rounded-full bg-stone-100 px-3 py-1 text-xs text-stone-600">
-            <MapPin size={12} /> {monument.prefecture}
-          </span>
-          {monument.area && (
-            <span className="rounded-full bg-amber-50 px-3 py-1 text-xs text-amber-700">
-              {monument.area.name}
+          {/* タイトル行 */}
+          <div className="mt-3 flex items-baseline gap-3">
+            <span className="flex-shrink-0 rounded px-2 py-0.5 text-sm font-medium tracking-wide"
+              style={{ backgroundColor: '#C0392B', color: '#fff' }}>
+              No.{monumentNo}
             </span>
-          )}
+            <h1 className="text-2xl leading-snug" style={{ color: '#4a3a2a' }}>{m.name}</h1>
+          </div>
         </div>
 
-        {monument.address && (
-          <p className="mt-3 text-sm text-stone-500">{monument.address}</p>
-        )}
+        {/* ボディ */}
+        <div className="px-4 pb-10 pt-4">
+          <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: 'rgba(255,255,255,0.92)', border: '1px solid #e8ddd0' }}>
 
-        {monument.description && (
-          <div className="mt-5">
-            <h2 className="mb-2 font-semibold text-stone-700">解説</h2>
-            <p className="text-sm leading-relaxed text-stone-600">{monument.description}</p>
+            {/* 所在地 */}
+            {m.address && (
+              <div className="flex gap-3 px-4 py-4">
+                <div className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg"
+                  style={{ backgroundColor: '#f5ede4' }}>
+                  <MapPin size={15} style={{ color: '#8B4513' }} />
+                </div>
+                <div>
+                  <p className="text-sm font-medium mb-0.5" style={{ color: '#8B4513' }}>所在地</p>
+                  <p className="text-base leading-relaxed" style={{ color: '#4a3a2a' }}>{m.address}</p>
+                </div>
+              </div>
+            )}
+
+            {/* 解説 */}
+            {m.description && (
+              <>
+                <div style={{ height: '1px', backgroundColor: '#e8ddd0', margin: '0 1rem' }} />
+                <div className="flex gap-3 px-4 py-4">
+                  <div className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg"
+                    style={{ backgroundColor: '#f5ede4' }}>
+                    <BookOpen size={15} style={{ color: '#8B4513' }} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium mb-0.5" style={{ color: '#8B4513' }}>解説</p>
+                    <p className="text-base leading-relaxed" style={{ color: '#4a3a2a' }}>{m.description}</p>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* アクセス */}
+            {m.access_info && (
+              <>
+                <div style={{ height: '1px', backgroundColor: '#e8ddd0', margin: '0 1rem' }} />
+                <div className="flex gap-3 px-4 py-4">
+                  <div className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg"
+                    style={{ backgroundColor: '#f5ede4' }}>
+                    <Navigation size={15} style={{ color: '#8B4513' }} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium mb-0.5" style={{ color: '#8B4513' }}>アクセス</p>
+                    <p className="text-base leading-relaxed" style={{ color: '#4a3a2a' }}>{m.access_info}</p>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
-        )}
 
-        {monument.access_info && (
-          <div className="mt-5">
-            <h2 className="mb-2 flex items-center gap-1 font-semibold text-stone-700">
-              <Navigation size={14} /> アクセス
-            </h2>
-            <p className="text-sm text-stone-600">{monument.access_info}</p>
+          <div className="mt-4">
+            <CheckInButton monument={m as any} userId={user?.id ?? null} isStamped={isStamped} />
           </div>
-        )}
-
-        <div className="mt-8">
-          <CheckInButton
-            monument={monument as any}
-            userId={user?.id ?? null}
-            isStamped={isStamped}
-          />
         </div>
+
       </div>
     </div>
   )

@@ -2,11 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Yusei Magic';
+  src: url('/fonts/YuseiMagic-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   html {
     -webkit-tap-highlight-color: transparent;
+    font-family: 'Yusei Magic', sans-serif;
   }
   body {
     @apply text-stone-900;
+    font-family: 'Yusei Magic', sans-serif;
   }
+}
+
+/* マップ画面のみ: ブラウザネイティブのピンチズーム・スクロールを無効化 */
+html.map-active,
+html.map-active body {
+  touch-action: none;
+  overflow: hidden;
+  overscroll-behavior: none;
 }

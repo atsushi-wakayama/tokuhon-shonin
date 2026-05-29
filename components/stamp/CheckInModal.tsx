@@ -25,6 +25,7 @@ export function CheckInModal({ monument, userId, onSuccess, onClose }: Props) {
     if (!f) return
     setFile(f)
     setPreview(URL.createObjectURL(f))
+    e.target.value = ''
   }
 
   async function handleSubmit() {
@@ -37,24 +38,21 @@ export function CheckInModal({ monument, userId, onSuccess, onClose }: Props) {
     <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50">
       <div className="max-h-[80vh] w-full overflow-y-auto rounded-t-2xl bg-white p-6 pb-24 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-stone-800">チェックイン</h2>
+          <h2 className="text-lg" style={{ color: '#423629' }}>チェックイン</h2>
           <button onClick={onClose} className="rounded-full p-1 text-stone-400 hover:bg-stone-100">
             <X size={20} />
           </button>
         </div>
 
-        <p className="mb-4 text-sm text-stone-600">
-          <span className="font-medium text-stone-800">{monument.name}</span> の写真を撮影または選択してスタンプを獲得しましょう。
+        <p className="mb-4 text-base" style={{ color: '#5a5a5a' }}>
+          <span style={{ color: '#423629' }}>{monument.name}</span> の写真を撮影または選択してスタンプを獲得しましょう。
         </p>
 
-        {/* 写真プレビュー */}
         {preview ? (
           <div className="relative mb-4 aspect-square w-full overflow-hidden rounded-xl bg-stone-100">
             <img src={preview} alt="preview" className="h-full w-full object-cover" />
-            <button
-              onClick={() => { setPreview(null); setFile(null) }}
-              className="absolute right-2 top-2 rounded-full bg-black/50 p-1 text-white"
-            >
+            <button onClick={() => { setPreview(null); setFile(null); if (fileInputRef.current) fileInputRef.current.value = '' }}
+              className="absolute right-2 top-2 rounded-full bg-black/50 p-1 text-white">
               <X size={16} />
             </button>
           </div>
@@ -62,56 +60,43 @@ export function CheckInModal({ monument, userId, onSuccess, onClose }: Props) {
           <div className="mb-4 grid grid-cols-2 gap-3">
             <button
               onClick={() => { if (fileInputRef.current) { fileInputRef.current.accept = 'image/*'; fileInputRef.current.capture = 'environment'; fileInputRef.current.click() } }}
-              className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-stone-200 py-6 text-stone-500 hover:border-amber-400 hover:text-amber-600"
-            >
+              className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-stone-200 py-6"
+              style={{ color: '#5a5a5a' }}>
               <Camera size={28} />
               <span className="text-sm">カメラで撮影</span>
             </button>
             <button
               onClick={() => { if (fileInputRef.current) { fileInputRef.current.removeAttribute('capture'); fileInputRef.current.click() } }}
-              className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-stone-200 py-6 text-stone-500 hover:border-amber-400 hover:text-amber-600"
-            >
+              className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-stone-200 py-6"
+              style={{ color: '#5a5a5a' }}>
               <Upload size={28} />
               <span className="text-sm">写真を選択</span>
             </button>
           </div>
         )}
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleFileSelect}
-        />
+        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
 
-        {/* エラー表示 */}
         {(geoError || errorMessage) && (
-          <p className="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-600">
-            {geoError || errorMessage}
-          </p>
+          <p className="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-600">{geoError || errorMessage}</p>
         )}
 
-        {/* GPS状態 */}
         {geoLoading && (
-          <p className="mb-3 flex items-center gap-2 text-sm text-stone-500">
+          <p className="mb-3 flex items-center gap-2 text-sm" style={{ color: '#5a5a5a' }}>
             <Loader2 size={14} className="animate-spin" /> GPS取得中...
           </p>
         )}
 
-        {/* 送信ボタン */}
         <button
           onClick={handleSubmit}
           disabled={!file || geoLoading || status === 'uploading' || latitude === null}
-          className="w-full rounded-xl bg-amber-700 py-3 font-bold text-white disabled:opacity-40"
-        >
+          className="w-full rounded-xl py-3 text-white disabled:opacity-40"
+          style={{ backgroundColor: '#b35c44' }}>
           {status === 'uploading' ? (
             <span className="flex items-center justify-center gap-2">
               <Loader2 size={18} className="animate-spin" /> 送信中...
             </span>
-          ) : (
-            'スタンプを獲得する'
-          )}
+          ) : 'スタンプを獲得する'}
         </button>
       </div>
     </div>

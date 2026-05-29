@@ -1,12 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Noto_Serif_JP } from 'next/font/google'
 import './globals.css'
-
-const notoSerifJP = Noto_Serif_JP({
-  subsets: ['latin'],
-  weight: ['400', '500', '700'],
-  variable: '--font-serif',
-})
 
 export const metadata: Metadata = {
   title: '徳本上人 名号碑めぐり',
@@ -25,13 +18,16 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
   themeColor: '#92400e',
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ja" className={notoSerifJP.variable}>
-      <body className="bg-stone-50 font-serif antialiased">{children}</body>
+    <html lang="ja">
+      <body className="bg-stone-50 antialiased">{children}</body>
     </html>
   )
 }

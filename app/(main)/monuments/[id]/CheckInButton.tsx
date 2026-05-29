@@ -18,7 +18,7 @@ export function CheckInButton({ monument, userId, isStamped }: Props) {
 
   if (isStamped) {
     return (
-      <div className="w-full rounded-xl bg-stone-100 py-3 text-center text-sm font-medium text-stone-500">
+      <div className="w-full rounded-xl bg-stone-100 py-3 text-center text-sm" style={{ color: '#5a5a5a' }}>
         チェックイン済み
       </div>
     )
@@ -26,10 +26,7 @@ export function CheckInButton({ monument, userId, isStamped }: Props) {
 
   if (!userId) {
     return (
-      <a
-        href="/login"
-        className="block w-full rounded-xl bg-amber-700 py-3 text-center font-bold text-white"
-      >
+      <a href="/login" className="block w-full rounded-xl py-3 text-center text-white" style={{ backgroundColor: '#b35c44' }}>
         ログインしてチェックインする
       </a>
     )
@@ -39,7 +36,8 @@ export function CheckInButton({ monument, userId, isStamped }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-700 py-3 font-bold text-white"
+        className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-white"
+        style={{ backgroundColor: '#b35c44' }}
       >
         <Stamp size={20} />
         チェックインする
