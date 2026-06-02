@@ -244,6 +244,7 @@ function parseMarkdownToWordElements(lines) {
   const elements = [];
   let i = 0;
   let h1Count = 0;
+  let skipNextCodeBlock = false;
 
   while (i < lines.length) {
     const line = lines[i];
@@ -281,8 +282,9 @@ function parseMarkdownToWordElements(lines) {
       // 画面遷移フローの見出し直後に図を挿入
       if (text.includes('画面遷移フロー')) {
         const flowImagePath = path.join(__dirname, 'flow_diagram.png');
-        const img = insertImage(flowImagePath, 580, 507); // A4幅に合わせたサイズ（pt換算）
-        if (img) elements.push(img);
+        const img = insertImage(flowImagePath, 595, 768); // SVG縦横比(720:930)に合わせたサイズ・本文幅いっぱい
+        if (img) { elements.push(img); skipNextCodeBlock = true; }
+
       }
       i++;
       continue;
@@ -299,8 +301,12 @@ function parseMarkdownToWordElements(lines) {
     // コードブロック
     if (trimmed === '```') {
       const { codeLines, nextIdx } = parseCodeBlock(lines, i);
-      codeLines.forEach(l => elements.push(codeLine(l)));
-      elements.push(emptyLine());
+      if (skipNextCodeBlock) {
+        skipNextCodeBlock = false;
+      } else {
+        codeLines.forEach(l => elements.push(codeLine(l)));
+        elements.push(emptyLine());
+      }
       i = nextIdx;
       continue;
     }
