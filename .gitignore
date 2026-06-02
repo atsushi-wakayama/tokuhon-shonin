@@ -23,3 +23,6 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# 開発日誌（ローカル専用・GitHubには送らない）
+DEVLOG/
