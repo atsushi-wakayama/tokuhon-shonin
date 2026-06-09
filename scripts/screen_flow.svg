@@ -114,7 +114,7 @@
 
   <!-- v2.0 追加フロー 区切り -->
   <line x1="20" y1="648" x2="700" y2="648" stroke="#bbb" stroke-width="1" stroke-dasharray="5 4"/>
-  <text x="360" y="662" text-anchor="middle" font-size="11" fill="#888">v2.0 追加フロー（管理者・申請）</text>
+  <text x="360" y="662" text-anchor="middle" font-size="11" fill="#888">v2.1 追加フロー（管理者・申請）</text>
 
   <!-- 左側：ユーザー申請フロー -->
   <text x="150" y="682" text-anchor="middle" font-size="10" fill="#555">S04・S05の「申請」ボタンから</text>
@@ -132,7 +132,7 @@
   <!-- S10 管理ページ -->
   <rect x="505" y="695" width="195" height="52" rx="8" fill="#B45309" stroke="#9a4a08" stroke-width="1"/>
   <text x="602" y="717" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">S10 管理ページ</text>
-  <text x="602" y="735" text-anchor="middle" font-size="10" fill="#ffe">スポット管理・承認待ち</text>
+  <text x="602" y="735" text-anchor="middle" font-size="10" fill="#ffe">スポット管理・削除・承認待ち</text>
 
   <!-- S10 → S11 -->
   <line x1="602" y1="747" x2="602" y2="773" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
@@ -142,6 +142,15 @@
   <rect x="505" y="775" width="195" height="52" rx="8" fill="#6B7280" stroke="#565c66" stroke-width="1"/>
   <text x="602" y="797" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">S11 スポット編集</text>
   <text x="602" y="815" text-anchor="middle" font-size="10" fill="#ddd">所在地・解説・場所等を編集</text>
+
+  <!-- S10 → S13 新規追加 -->
+  <line x1="553" y1="747" x2="490" y2="773" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="508" y="754" text-anchor="middle" font-size="10" fill="#555">新規追加</text>
+
+  <!-- S13 スポット新規追加 -->
+  <rect x="280" y="773" width="210" height="52" rx="8" fill="#6B7280" stroke="#565c66" stroke-width="1"/>
+  <text x="385" y="795" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">S13 スポット新規追加</text>
+  <text x="385" y="813" text-anchor="middle" font-size="10" fill="#ddd">項目入力・保存</text>
 
   <!-- 凡例（移動） -->
   <rect x="20" y="868" width="14" height="12" rx="2" fill="#5B4FCF"/>

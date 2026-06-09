@@ -14,6 +14,8 @@ export const MOCK_MONUMENTS: MonumentWithArea[] = [
     access_info: 'JR紀勢本線 道成寺駅より徒歩10分',
     image_urls: [],
     is_verified: true,
+    status: 'approved' as const,
+    submitted_by: null,
     created_at: '2024-01-01T00:00:00Z',
   },
   {
@@ -29,6 +31,8 @@ export const MOCK_MONUMENTS: MonumentWithArea[] = [
     access_info: 'JR山手線 浜松町駅より徒歩10分',
     image_urls: [],
     is_verified: true,
+    status: 'approved' as const,
+    submitted_by: null,
     created_at: '2024-01-01T00:00:00Z',
   },
   {
@@ -44,6 +48,8 @@ export const MOCK_MONUMENTS: MonumentWithArea[] = [
     access_info: '江ノ電 藤沢駅より徒歩15分',
     image_urls: [],
     is_verified: true,
+    status: 'approved' as const,
+    submitted_by: null,
     created_at: '2024-01-01T00:00:00Z',
   },
   {
@@ -59,6 +65,8 @@ export const MOCK_MONUMENTS: MonumentWithArea[] = [
     access_info: '地下鉄東西線 東山駅より徒歩10分',
     image_urls: [],
     is_verified: true,
+    status: 'approved' as const,
+    submitted_by: null,
     created_at: '2024-01-01T00:00:00Z',
   },
   {
@@ -74,6 +82,8 @@ export const MOCK_MONUMENTS: MonumentWithArea[] = [
     access_info: 'JR和歌山線 粉河駅より徒歩15分',
     image_urls: [],
     is_verified: true,
+    status: 'approved' as const,
+    submitted_by: null,
     created_at: '2024-01-01T00:00:00Z',
   },
 ]

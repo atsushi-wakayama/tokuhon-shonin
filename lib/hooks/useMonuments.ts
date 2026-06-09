@@ -22,6 +22,7 @@ export function useMonuments(areaId?: number) {
           *,
           area:areas(*)
         `)
+        .eq('status', 'approved')
         .order('name')
 
       if (areaId) {

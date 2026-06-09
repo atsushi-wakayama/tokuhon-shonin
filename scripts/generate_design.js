@@ -16,6 +16,7 @@ const {
 } = require('docx');
 const fs = require('fs');
 const path = require('path');
+const sharp = require('sharp');
 
 // ─────────────────────────────────────────
 // 設定
@@ -237,6 +238,21 @@ function insertImage(imagePath, widthEmu, heightEmu) {
   });
 }
 
+function insertImageFromBuffer(buffer, widthPx, heightPx) {
+  return new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { before: 160, after: 160 },
+    children: [new ImageRun({
+      data: buffer,
+      transformation: { width: widthPx, height: heightPx },
+      type: 'png',
+    })]
+  });
+}
+
+// SVGから変換したPNGバッファを保持する変数
+let flowDiagramBuffer = null;
+
 // ─────────────────────────────────────────
 // DESIGN.md → Word要素に変換
 // ─────────────────────────────────────────
@@ -281,10 +297,11 @@ function parseMarkdownToWordElements(lines) {
       elements.push(h2(text));
       // 画面遷移フローの見出し直後に図を挿入
       if (text.includes('画面遷移フロー')) {
-        const flowImagePath = path.join(__dirname, 'flow_diagram.png');
-        const img = insertImage(flowImagePath, 595, 768); // SVG縦横比(720:930)に合わせたサイズ・本文幅いっぱい
-        if (img) { elements.push(img); skipNextCodeBlock = true; }
-
+        if (flowDiagramBuffer) {
+          // screen_flow.svg を変換したPNGを使用（720:930 → 幅595px）
+          elements.push(insertImageFromBuffer(flowDiagramBuffer, 595, 769));
+          skipNextCodeBlock = true;
+        }
       }
       i++;
       continue;
@@ -427,6 +444,18 @@ function buildCoverPage(meta) {
 // ─────────────────────────────────────────
 // メイン処理
 // ─────────────────────────────────────────
+(async () => {
+  // screen_flow.svg を PNG バッファに変換
+  const svgPath = path.join(__dirname, 'screen_flow.svg');
+  if (fs.existsSync(svgPath)) {
+    // Windows標準の日本語フォントに置き換えてからPNG変換（Noto Sans CJK JPがWindows未インストールのため）
+    const svgText = fs.readFileSync(svgPath, 'utf-8').replace(/Noto Sans CJK JP/g, 'Yu Gothic');
+    flowDiagramBuffer = await sharp(Buffer.from(svgText), { density: 150 }).png().toBuffer();
+    console.log('✅ screen_flow.svg をPNGに変換しました');
+  } else {
+    console.warn('⚠️  screen_flow.svg が見つかりません：', svgPath);
+  }
+
 const meta = extractMeta(lines);
 console.log('📋 メタ情報：', meta);
 
@@ -480,9 +509,10 @@ const doc = new Document({
   }]
 });
 
-Packer.toBuffer(doc).then(buffer => {
-  fs.writeFileSync(OUTPUT_PATH, buffer);
-  console.log('✅ Wordファイルを生成しました：', OUTPUT_PATH);
-}).catch(err => {
-  console.error('❌ 生成エラー：', err);
-});
+  await Packer.toBuffer(doc).then(buffer => {
+    fs.writeFileSync(OUTPUT_PATH, buffer);
+    console.log('✅ Wordファイルを生成しました：', OUTPUT_PATH);
+  }).catch(err => {
+    console.error('❌ 生成エラー：', err);
+  });
+})();

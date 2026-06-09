@@ -40,7 +40,7 @@ export default async function MyPage() {
   }
 
   const [{ data: profileRaw }, { data: stamps }, { data: userBadgesRaw }, { count: totalMonuments }] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', user.id).single(),
+    supabase.from('profiles').select('*, is_admin').eq('id', user.id).single(),
     supabase.from('stamps').select('*, monument:monuments(*)').eq('user_id', user.id).order('checked_in_at', { ascending: false }),
     supabase.from('user_badges').select('badge_id, earned_at').eq('user_id', user.id),
     supabase.from('monuments').select('id', { count: 'exact', head: true }),
@@ -124,6 +124,17 @@ export default async function MyPage() {
               </div>
             )}
           </div>
+
+          {/* 管理ページリンク（管理者のみ） */}
+          {profile?.is_admin && (
+            <div className="mb-6">
+              <Link href="/admin" className="flex items-center justify-between rounded-xl border px-4 py-3"
+                style={{ borderColor: '#e8ddd0', backgroundColor: 'rgba(255,255,255,0.9)' }}>
+                <span className="text-sm font-medium" style={{ color: '#423629' }}>管理ページ</span>
+                <span className="text-xs" style={{ color: '#b35c44' }}>→</span>
+              </Link>
+            </div>
+          )}
 
           {/* スタンプ帳 */}
           <h2 className="mb-3 inline-block rounded-xl px-3 py-1.5 text-lg" style={{ color: '#423629', backgroundColor: 'rgba(255,255,255,0.8)' }}>スタンプ帳</h2>

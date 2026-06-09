@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Search } from 'lucide-react'
+import { Search, Plus } from 'lucide-react'
+import Link from 'next/link'
 import { MonumentCard } from '@/components/monument/MonumentCard'
 import { useMonuments } from '@/lib/hooks/useMonuments'
 
@@ -57,6 +58,15 @@ export default function MonumentsPage() {
           filtered.map((m) => <MonumentCard key={m.id} monument={m} />)
         )}
       </div>
+
+      <Link
+        href="/monuments/submit?from=monuments"
+        className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium"
+        style={{ backgroundColor: 'rgba(255,255,255,0.9)', color: '#b35c44', border: '1px solid #b35c44' }}
+      >
+        <Plus size={16} />
+        新しいスポットを申請する
+      </Link>
     </div>
     </div>
   )

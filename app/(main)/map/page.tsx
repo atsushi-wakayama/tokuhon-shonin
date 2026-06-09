@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useGeolocation } from '@/lib/hooks/useGeolocation'
-import { MapPin, X } from 'lucide-react'
+import { MapPin, X, Plus } from 'lucide-react'
 import Link from 'next/link'
 
 // PostGIS WKB hex → lat/lng パーサー（ブラウザ対応）
@@ -53,7 +53,7 @@ export default function MapPage() {
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.from('monuments').select('*, area:areas(*)').order('name')
+    supabase.from('monuments').select('*, area:areas(*)').eq('status', 'approved').order('name')
       .then(({ data }) => { if (data) setMonuments(data) })
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsLoggedIn(!!session)
@@ -154,6 +154,16 @@ function MapFallback({
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}>
+
+      {/* 申請テキストボタン */}
+      <Link
+        href="/monuments/submit?from=map"
+        className="absolute left-3 top-3 z-20 flex items-center gap-1 rounded-full px-3 py-2 text-xs font-medium shadow-md"
+        style={{ backgroundColor: 'rgba(255,255,255,0.92)', color: '#b35c44', border: '1px solid #d4c5b0' }}
+      >
+        <Plus size={12} />
+        スポットを申請
+      </Link>
 
       {/* ズームボタン */}
       <div className="absolute right-3 top-3 z-20 flex flex-col gap-1">
@@ -275,6 +285,14 @@ function GoogleMapView({
     <div className="relative h-[calc(100dvh-5rem-env(safe-area-inset-bottom,0px))]">
       <div ref={mapRef} className="h-full w-full" />
       {!loaded && <div className="absolute inset-0 flex items-center justify-center bg-stone-100"><p className="text-sm text-stone-500">地図を読み込み中...</p></div>}
+      <Link
+        href="/monuments/submit?from=map"
+        className="absolute left-3 top-3 z-20 flex items-center gap-1 rounded-full px-3 py-2 text-xs font-medium shadow-md"
+        style={{ backgroundColor: 'rgba(255,255,255,0.92)', color: '#b35c44', border: '1px solid #d4c5b0' }}
+      >
+        <Plus size={12} />
+        スポットを申請
+      </Link>
     </div>
   )
 }

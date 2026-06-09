@@ -28,6 +28,8 @@ export interface Database {
           access_info: string | null
           image_urls: string[]
           is_verified: boolean
+          status: 'approved' | 'pending' | 'rejected'
+          submitted_by: string | null
           created_at: string
         }
         Insert: Omit<Database['public']['Tables']['monuments']['Row'], 'id' | 'created_at'>
@@ -39,6 +41,7 @@ export interface Database {
           nickname: string
           avatar_url: string | null
           total_stamps: number
+          is_admin: boolean
           created_at: string
           updated_at: string
         }
