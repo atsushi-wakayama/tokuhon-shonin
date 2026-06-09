@@ -48,7 +48,7 @@ export default async function EditMonumentPage({ params }: { params: Promise<{ i
   if (!monument) notFound()
 
   const coords = parseLocationCoords((monument as any).location)
-  const monumentWithCoords = { ...monument, ...coords }
+  const monumentWithCoords = { ...(monument as any), ...coords }
 
   return <EditForm monument={monumentWithCoords as any} areas={areas ?? []} />
 }
