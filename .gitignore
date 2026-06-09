@@ -4,6 +4,7 @@ node_modules/
 # ビルド成果物
 .next/
 out/
+tsconfig.tsbuildinfo
 
 # 環境変数（APIキーが含まれるため絶対にアップしない）
 .env
