@@ -44,41 +44,41 @@ function border() {
 
 const testCases = [
   // S13（9件）
-  { id: 'TC-S13-01', screen: 'S13', type: '正常系', perspective: 'スポット新規追加画面を開ける', priority: '高' },
-  { id: 'TC-S13-02', screen: 'S13', type: '正常系', perspective: '必須項目（スポット名・都道府県）のみ入力して追加できる', priority: '高' },
-  { id: 'TC-S13-03', screen: 'S13', type: '正常系', perspective: '全項目を入力して追加できる', priority: '中' },
-  { id: 'TC-S13-04', screen: 'S13', type: '異常系', perspective: '碑の名称を未入力で追加するとエラーになる', priority: '高' },
-  { id: 'TC-S13-05', screen: 'S13', type: '異常系', perspective: '都道府県を未選択で追加するとエラーになる', priority: '高' },
-  { id: 'TC-S13-06', screen: 'S13', type: '正常系', perspective: '入力途中で戻るボタンをタップすると確認ダイアログが表示される', priority: '中' },
-  { id: 'TC-S13-07', screen: 'S13', type: '異常系', perspective: '未ログインでアクセスするとログイン画面にリダイレクトされる', priority: '高' },
-  { id: 'TC-S13-08', screen: 'S13', type: '異常系', perspective: '管理者でないユーザーがアクセスすると権限エラー画面が表示される', priority: '高' },
-  { id: 'TC-S13-09', screen: 'S13', type: '正常系', perspective: '何も入力せずに戻るボタンをタップすると確認ダイアログなしで管理ページへ戻る', priority: '低' },
+  { id: 'TC-S13-01', screen: 'S13', type: '正常系', perspective: 'スポット新規追加画面を開ける', priority: '高', result: '☑ OK', date: '2026/6/11', note: '確認項目⑤「所在地」が「住所」表記（既知BUG-001/003）' },
+  { id: 'TC-S13-02', screen: 'S13', type: '正常系', perspective: '必須項目（スポット名・都道府県）のみ入力して追加できる', priority: '高', result: '☑ OK', date: '2026/6/11', note: 'BUG-005発見・緊急対処済み（image_urls未送信・locationカラムNOT NULL）' },
+  { id: 'TC-S13-03', screen: 'S13', type: '正常系', perspective: '全項目を入力して追加できる', priority: '中', result: '☑ OK', date: '2026/6/11', note: '' },
+  { id: 'TC-S13-04', screen: 'S13', type: '異常系', perspective: '碑の名称を未入力で追加するとエラーになる', priority: '高', result: '☑ OK', date: '2026/6/11', note: '' },
+  { id: 'TC-S13-05', screen: 'S13', type: '異常系', perspective: '都道府県を未選択で追加するとエラーになる', priority: '高', result: '☑ OK', date: '2026/6/11', note: '' },
+  { id: 'TC-S13-06', screen: 'S13', type: '正常系', perspective: '入力途中で戻るボタンをタップすると確認ダイアログが表示される', priority: '中', result: '☑ OK', date: '2026/6/11', note: '' },
+  { id: 'TC-S13-07', screen: 'S13', type: '異常系', perspective: '未ログインでアクセスするとログイン画面にリダイレクトされる', priority: '高', result: '☑ OK', date: '2026/6/11', note: '' },
+  { id: 'TC-S13-08', screen: 'S13', type: '異常系', perspective: '管理者でないユーザーがアクセスすると権限エラー画面が表示される', priority: '高', result: '☑ OK', date: '2026/6/11', note: '' },
+  { id: 'TC-S13-09', screen: 'S13', type: '正常系', perspective: '何も入力せずに戻るボタンをタップすると確認ダイアログなしで管理ページへ戻る', priority: '低', result: '☑ OK', date: '2026/6/11', note: '' },
   // S12（10件）
-  { id: 'TC-S12-01', screen: 'S12', type: '正常系', perspective: 'スポット申請フォームの初期表示を確認できること（GPS成功時）', priority: '高' },
-  { id: 'TC-S12-02', screen: 'S12', type: '正常系', perspective: 'GPS取得失敗時に地図ピッカーが表示され、地図タップで位置を指定できること', priority: '高' },
-  { id: 'TC-S12-03', screen: 'S12', type: '正常系', perspective: '必要項目を入力して申請が完了できること（テスト申請碑A）', priority: '高' },
-  { id: 'TC-S12-04', screen: 'S12', type: '正常系', perspective: 'スポット一覧から申請フォームを開き、申請が完了できること（テスト申請碑B）', priority: '高' },
-  { id: 'TC-S12-05', screen: 'S12', type: '異常系', perspective: '未ログイン状態でアクセスするとログイン画面にリダイレクトされること', priority: '中' },
-  { id: 'TC-S12-06', screen: 'S12', type: '異常系', perspective: 'スポット名未入力で送信するとエラーメッセージが表示されること', priority: '高' },
-  { id: 'TC-S12-07', screen: 'S12', type: '異常系', perspective: '場所未指定のまま送信するとエラーメッセージが表示されること', priority: '高' },
-  { id: 'TC-S12-08', screen: 'S12', type: '正常系', perspective: '入力途中で戻るボタンをタップすると破棄確認ダイアログが表示されること', priority: '高' },
-  { id: 'TC-S12-09', screen: 'S12', type: '正常系', perspective: '破棄確認ダイアログで「破棄して戻る」をタップすると元のページに戻ること', priority: '高' },
-  { id: 'TC-S12-10', screen: 'S12', type: '正常系', perspective: '何も入力せずに戻るボタンをタップするとダイアログなしで元のページに戻ること', priority: '中' },
+  { id: 'TC-S12-01', screen: 'S12', type: '正常系', perspective: 'スポット申請フォームの初期表示を確認できること（GPS成功時）', priority: '高', result: '☑ OK', date: '2026/6/11', note: '確認項目⑦「所在地（住所）」表記（既知BUG-003）' },
+  { id: 'TC-S12-02', screen: 'S12', type: '正常系', perspective: 'GPS取得失敗時に地図ピッカーが表示され、地図タップで位置を指定できること', priority: '高', result: '☑ OK', date: '2026/6/11', note: '' },
+  { id: 'TC-S12-03', screen: 'S12', type: '正常系', perspective: '必要項目を入力して申請が完了できること（テスト申請碑A）', priority: '高', result: '☑ OK', date: '2026/6/11', note: 'テスト申請碑A 申請完了' },
+  { id: 'TC-S12-04', screen: 'S12', type: '正常系', perspective: 'スポット一覧から申請フォームを開き、申請が完了できること（テスト申請碑B）', priority: '高', result: '☑ OK', date: '2026/6/11', note: 'テスト申請碑B 申請完了' },
+  { id: 'TC-S12-05', screen: 'S12', type: '異常系', perspective: '未ログイン状態でアクセスするとログイン画面にリダイレクトされること', priority: '中', result: '☑ OK', date: '2026/6/11', note: '' },
+  { id: 'TC-S12-06', screen: 'S12', type: '異常系', perspective: 'スポット名未入力で送信するとエラーメッセージが表示されること', priority: '高', result: '☑ OK', date: '2026/6/11', note: '' },
+  { id: 'TC-S12-07', screen: 'S12', type: '異常系', perspective: '場所未指定のまま送信するとエラーメッセージが表示されること', priority: '高', result: '☑ OK', date: '2026/6/11', note: '' },
+  { id: 'TC-S12-08', screen: 'S12', type: '正常系', perspective: '入力途中で戻るボタンをタップすると破棄確認ダイアログが表示されること', priority: '高', result: '☑ OK', date: '2026/6/11', note: '' },
+  { id: 'TC-S12-09', screen: 'S12', type: '正常系', perspective: '破棄確認ダイアログで「破棄して戻る」をタップすると元のページに戻ること', priority: '高', result: '☑ OK', date: '2026/6/11', note: '' },
+  { id: 'TC-S12-10', screen: 'S12', type: '正常系', perspective: '何も入力せずに戻るボタンをタップするとダイアログなしで元のページに戻ること', priority: '中', result: '☑ OK', date: '2026/6/11', note: '' },
   // S11（6件）
-  { id: 'TC-S11-01', screen: 'S11', type: '正常系', perspective: '編集画面を開くとテスト碑の情報が各フィールドに表示されること', priority: '高' },
-  { id: 'TC-S11-02', screen: 'S11', type: '正常系', perspective: '各項目を変更して保存すると管理ページに戻り、変更が保存されること', priority: '高' },
-  { id: 'TC-S11-03', screen: 'S11', type: '異常系', perspective: 'スポット名を空欄にして保存するとブラウザの標準バリデーションメッセージが表示されること', priority: '中' },
-  { id: 'TC-S11-04', screen: 'S11', type: '正常系', perspective: '変更後に戻るボタンをタップすると破棄確認ダイアログが表示されること', priority: '高' },
-  { id: 'TC-S11-05', screen: 'S11', type: '正常系', perspective: '破棄確認ダイアログで「破棄して戻る」をタップすると管理ページに戻ること', priority: '高' },
-  { id: 'TC-S11-06', screen: 'S11', type: '正常系', perspective: '何も変更せずに戻るボタンをタップするとダイアログなしで管理ページに戻ること', priority: '中' },
+  { id: 'TC-S11-01', screen: 'S11', type: '正常系', perspective: '編集画面を開くとテスト碑の情報が各フィールドに表示されること', priority: '高', result: '☑ OK', date: '2026/6/11', note: '③「碑の名称」表記(BUG-002) ⑤「住所」表記(BUG-001/003) ⑥位置情報未表示(BUG-005の影響)' },
+  { id: 'TC-S11-02', screen: 'S11', type: '正常系', perspective: '各項目を変更して保存すると管理ページに戻り、変更が保存されること', priority: '高', result: '☑ OK', date: '2026/6/11', note: '' },
+  { id: 'TC-S11-03', screen: 'S11', type: '異常系', perspective: 'スポット名を空欄にして保存するとブラウザの標準バリデーションメッセージが表示されること', priority: '中', result: '☑ OK', date: '2026/6/11', note: '' },
+  { id: 'TC-S11-04', screen: 'S11', type: '正常系', perspective: '変更後に戻るボタンをタップすると破棄確認ダイアログが表示されること', priority: '高', result: '☑ OK', date: '2026/6/11', note: '' },
+  { id: 'TC-S11-05', screen: 'S11', type: '正常系', perspective: '破棄確認ダイアログで「破棄して戻る」をタップすると管理ページに戻ること', priority: '高', result: '☑ OK', date: '2026/6/11', note: '' },
+  { id: 'TC-S11-06', screen: 'S11', type: '正常系', perspective: '何も変更せずに戻るボタンをタップするとダイアログなしで管理ページに戻ること', priority: '中', result: '☑ OK', date: '2026/6/11', note: '' },
   // S10（7件）
-  { id: 'TC-S10-01', screen: 'S10', type: '正常系', perspective: '管理ページの初期表示を確認できること', priority: '高' },
-  { id: 'TC-S10-02', screen: 'S10', type: '正常系', perspective: '承認待ちタブに申請2件が表示されること', priority: '高' },
-  { id: 'TC-S10-03', screen: 'S10', type: '正常系', perspective: '申請を却下すると承認待ちタブから消えること（テスト申請碑A）', priority: '高' },
-  { id: 'TC-S10-04', screen: 'S10', type: '正常系', perspective: '申請を承認すると承認待ちタブから消え、スポット管理タブの「承認待ち」バッジが消えること（テスト申請碑B）', priority: '高' },
-  { id: 'TC-S10-05', screen: 'S10', type: '正常系', perspective: 'スポットを削除すると一覧から消え、DBからも削除されること（テスト碑（修正））', priority: '高' },
-  { id: 'TC-S10-06', screen: 'S10', type: '異常系', perspective: '未ログイン状態でアクセスするとログイン画面にリダイレクトされること', priority: '中' },
-  { id: 'TC-S10-07', screen: 'S10', type: '異常系', perspective: '一般ユーザーでアクセスすると権限エラー画面が表示されること', priority: '中' },
+  { id: 'TC-S10-01', screen: 'S10', type: '正常系', perspective: '管理ページの初期表示を確認できること', priority: '高', result: '☑ OK', date: '2026/6/11', note: '' },
+  { id: 'TC-S10-02', screen: 'S10', type: '正常系', perspective: '承認待ちタブに申請2件が表示されること', priority: '高', result: '☑ OK', date: '2026/6/11', note: '' },
+  { id: 'TC-S10-03', screen: 'S10', type: '正常系', perspective: '申請を却下すると承認待ちタブから消えること（テスト申請碑A）', priority: '高', result: '☑ OK', date: '2026/6/11', note: 'テスト申請碑A 却下完了' },
+  { id: 'TC-S10-04', screen: 'S10', type: '正常系', perspective: '申請を承認すると承認待ちタブから消え、スポット管理タブの「承認待ち」バッジが消えること（テスト申請碑B）', priority: '高', result: '☑ OK', date: '2026/6/11', note: 'テスト申請碑B 承認完了' },
+  { id: 'TC-S10-05', screen: 'S10', type: '正常系', perspective: 'スポットを削除すると一覧から消え、DBからも削除されること（テスト碑（修正））', priority: '高', result: '☑ OK', date: '2026/6/11', note: 'テスト碑（修正）削除完了' },
+  { id: 'TC-S10-06', screen: 'S10', type: '異常系', perspective: '未ログイン状態でアクセスするとログイン画面にリダイレクトされること', priority: '中', result: '☑ OK', date: '2026/6/11', note: '' },
+  { id: 'TC-S10-07', screen: 'S10', type: '異常系', perspective: '一般ユーザーでアクセスすると権限エラー画面が表示されること', priority: '中', result: '☑ OK', date: '2026/6/11', note: '' },
 ];
 
 // ============================================================
@@ -99,7 +99,7 @@ sheet1.getRow(1).height = 28;
 // 情報行
 sheet1.mergeCells('A2:I2');
 const infoCell = sheet1.getCell('A2');
-infoCell.value = 'テスト実施日：　　　　　　　　実施環境：iOS Safari（スマートフォン）/ Chrome（Android・PC）　　URL：https://tokuhon-stamp-rally.vercel.app/';
+infoCell.value = 'テスト実施日：2026年6月11日　　実施環境：iOS Safari（スマートフォン）/ Chrome（Android・PC）　　URL：https://tokuhon-stamp-rally.vercel.app/';
 infoCell.font = { name: 'Yu Gothic', size: 10 };
 infoCell.fill = fill('F2F2F2');
 
@@ -156,16 +156,21 @@ testCases.forEach(function(tc, i) {
   // 優先度の背景色
   var priorityBg = tc.priority === '高' ? COLOR.highBg : tc.priority === '中' ? COLOR.midBg : COLOR.lowBg;
 
-  var cells = [tc.id, tc.screen, tc.type, tc.perspective, tc.priority, '', '', '', ''];
+  var cells = [tc.id, tc.screen, tc.type, tc.perspective, tc.priority, tc.result || '', tc.evidence || '', tc.date || '', tc.note || ''];
   cells.forEach(function(val, j) {
     var cell = row.getCell(j + 1);
     cell.value = val;
     cell.font = { name: 'Yu Gothic', size: 10 };
     cell.border = border();
-    cell.alignment = { vertical: 'middle', wrapText: j === 3 };
+    cell.alignment = { vertical: 'middle', wrapText: j === 3 || j === 8 };
     if (j === 4) {
       cell.fill = fill(priorityBg);
       cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    } else if (j === 5) {
+      var resultBg = val === '☑ OK' ? COLOR.okBg : val === '× NG' ? COLOR.ngBg : 'FFFFFF';
+      cell.fill = fill(resultBg);
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.font = { name: 'Yu Gothic', size: 10, bold: true };
     }
   });
 });
@@ -216,15 +221,36 @@ sheet2.getColumn(6).width = 9;
 sheet2.getColumn(7).width = 12;
 sheet2.getColumn(8).width = 20;
 
-// 空行を10行用意
-for (var r = 3; r <= 12; r++) {
-  var br = sheet2.getRow(r);
+var bugData = [
+  { id: 'BUG-001', testId: 'TC-S13-01 / TC-S11-01', screen: 'S13/S11', content: 'フィールドのラベルが「住所」になっているが「所在地」が正しい', expected: '「所在地」と表示される', priority: '低', status: '修正予定（6/12）', note: 'BUG-003と統合対応' },
+  { id: 'BUG-002', testId: 'TC-S13-01 / TC-S11-01', screen: 'S13/S11', content: 'フィールドのラベルが「碑の名称」になっているが「スポット名」が正しい', expected: '「スポット名」と表示される', priority: '低', status: '修正予定（6/12）', note: '' },
+  { id: 'BUG-003', testId: 'TC-S12-01', screen: 'S12', content: '申請フォームのラベルが「所在地（住所）」になっているが「所在地」が正しい', expected: '「所在地」と表示される', priority: '低', status: '修正予定（6/12）', note: 'BUG-001と統合対応' },
+  { id: 'BUG-004', testId: 'TC-S10-01', screen: 'S10', content: 'スポット管理タブのフィルター後の件数が「67件」のみで何の件数か分かりにくい', expected: '「スポット ○○件」と表示される', priority: '低', status: '修正予定（6/12）', note: '' },
+  { id: 'BUG-005', testId: 'TC-S13-02', screen: 'S13', content: 'createMonumentアクションにimage_urlsが含まれず・locationカラムがNOT NULLのためDB保存が失敗していた', expected: '必須項目のみで正常に保存できる', priority: '高', status: '緊急対処済み・本修正予定（6/12）', note: 'image_urls:[]を追加・locationをNULL許容に変更（緊急対処）' },
+  { id: 'DOC-001', testId: 'TC-S10-07 / TC-S13-08', screen: 'S10/S13', content: '設計書の画面遷移仕様で「/adminにリダイレクト」と記載されているが、実際は権限エラー画面→OKで/mapに遷移', expected: '設計書が実挙動に一致している', priority: '低', status: '修正予定（6/12）', note: '設計書のみ修正・コード正常' },
+  { id: 'DOC-002', testId: '—', screen: 'S12', content: '設計書のボタン名が「新しいスポットを申請」と記載されているが、実際のコードは画面ごとに正式名称が異なる', expected: '設計書が実装に一致している', priority: '低', status: '修正予定（6/12）', note: '設計書のみ修正・コード正常' },
+];
+
+bugData.forEach(function(bug, i) {
+  var br = sheet2.getRow(i + 3);
   br.height = 18;
-  for (var c = 1; c <= 8; c++) {
-    br.getCell(c).border = border();
-    br.getCell(c).font = { name: 'Yu Gothic', size: 10 };
-  }
-}
+  var bugCells = [bug.id, bug.testId, bug.screen, bug.content, bug.expected, bug.priority, bug.status, bug.note];
+  bugCells.forEach(function(val, j) {
+    var cell = br.getCell(j + 1);
+    cell.value = val;
+    cell.font = { name: 'Yu Gothic', size: 10 };
+    cell.border = border();
+    cell.alignment = { vertical: 'middle', wrapText: j === 3 || j === 4 || j === 7 };
+    if (j === 5) {
+      var pBg = val === '高' ? COLOR.highBg : val === '中' ? COLOR.midBg : COLOR.lowBg;
+      cell.fill = fill(pBg);
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    }
+    if (bug.id === 'BUG-005' && j === 6) {
+      cell.fill = fill(COLOR.okBg);
+    }
+  });
+});
 
 // ============================================================
 // タブ3：実施メモ
@@ -245,7 +271,7 @@ sheet3.getColumn(1).width = 28;
 sheet3.getColumn(2).width = 55;
 
 var memoData = [
-  ['テスト実施日', ''],
+  ['テスト実施日', '2026年6月11日（木）'],
   ['テスト対象URL', 'https://tokuhon-stamp-rally.vercel.app/'],
   ['実施環境', 'iOS Safari（スマートフォン）'],
   ['テスト実行順序', 'S13 → S12 → S11 → S10'],

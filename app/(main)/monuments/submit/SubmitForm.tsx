@@ -248,7 +248,7 @@ export function SubmitForm({ backPath }: Props) {
       <button
         onClick={handleBack}
         className="mb-4 flex items-center gap-1 text-sm"
-        style={{ color: '#b35c44' }}
+        style={{ color: '#b35c44', backgroundColor: 'rgba(255,255,255,0.85)', padding: '4px 10px 4px 6px', borderRadius: '8px' }}
       >
         <ChevronLeft size={16} />
         {backPath === '/map' ? 'マップに戻る' : 'スポット一覧に戻る'}
@@ -367,7 +367,7 @@ export function SubmitForm({ backPath }: Props) {
           className="rounded-2xl p-4"
           style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: '1px solid #d4c5b0' }}
         >
-          <Field label="所在地（住所）">
+          <Field label="所在地">
             <input
               type="text"
               value={address}

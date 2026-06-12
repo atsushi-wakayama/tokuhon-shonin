@@ -49,7 +49,7 @@ export default function MonumentsPage() {
         ))}
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-3 pb-4">
         {loading ? (
           <p className="py-12 text-center text-base" style={{ color: '#5a5a5a' }}>読み込み中...</p>
         ) : filtered.length === 0 ? (
@@ -58,16 +58,21 @@ export default function MonumentsPage() {
           filtered.map((m) => <MonumentCard key={m.id} monument={m} />)
         )}
       </div>
-
-      <Link
-        href="/monuments/submit?from=monuments"
-        className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium"
-        style={{ backgroundColor: 'rgba(255,255,255,0.9)', color: '#b35c44', border: '1px solid #b35c44' }}
-      >
-        <Plus size={16} />
-        新しいスポットを申請する
-      </Link>
     </div>
+
+    {/* 申請ボタン（右下固定） */}
+    <Link
+      href="/monuments/submit?from=monuments"
+      className="fixed z-20 flex items-center gap-1.5 rounded-full px-4 py-3 text-sm font-medium text-white shadow-lg"
+      style={{
+        bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px) + 1rem)',
+        right: '1rem',
+        backgroundColor: '#b35c44',
+      }}
+    >
+      <Plus size={16} />
+      スポットを申請
+    </Link>
     </div>
   )
 }

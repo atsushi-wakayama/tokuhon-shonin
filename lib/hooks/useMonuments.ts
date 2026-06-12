@@ -11,6 +11,7 @@ export function useMonuments(areaId?: number) {
 
   useEffect(() => {
     const supabase = createClient()
+    let cancelled = false
 
     async function fetch() {
       setLoading(true)
@@ -30,6 +31,7 @@ export function useMonuments(areaId?: number) {
       }
 
       const { data, error } = await query
+      if (cancelled) return
       if (error) {
         setError(error.message)
       } else {
@@ -39,6 +41,7 @@ export function useMonuments(areaId?: number) {
     }
 
     fetch()
+    return () => { cancelled = true }
   }, [areaId])
 
   return { monuments, loading, error }

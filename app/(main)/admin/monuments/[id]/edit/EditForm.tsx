@@ -34,11 +34,11 @@ type Area = {
   name: string
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div>
-      <label className="mb-1.5 block text-xs font-medium" style={{ color: '#423629' }}>
-        {label}
+      <label className="mb-1.5 inline-block text-sm font-medium" style={{ color: '#423629', backgroundColor: 'rgba(255,255,255,0.85)', padding: '1px 6px', borderRadius: '4px' }}>
+        {label}{required && <span style={{ color: '#ef4444' }}> *</span>}
       </label>
       {children}
     </div>
@@ -47,7 +47,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 export function EditForm({ monument, areas }: { monument: Monument; areas: Area[] }) {
   const router = useRouter()
-  const [state, formAction] = useActionState(updateMonument, null)
+  const [state, formAction, isPending] = useActionState(updateMonument, null)
   const [isDirty, setIsDirty] = useState(false)
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
   const [latitude, setLatitude] = useState<number | null>(monument.latitude)
@@ -209,7 +209,7 @@ export function EditForm({ monument, areas }: { monument: Monument; areas: Area[
             </div>
           )}
 
-          <Field label="碑の名称 *">
+          <Field label="スポット名" required>
             <input
               name="name"
               defaultValue={monument.name}
@@ -220,7 +220,7 @@ export function EditForm({ monument, areas }: { monument: Monument; areas: Area[
             />
           </Field>
 
-          <Field label="都道府県 *">
+          <Field label="都道府県" required>
             <select
               name="prefecture"
               defaultValue={monument.prefecture}
@@ -235,7 +235,7 @@ export function EditForm({ monument, areas }: { monument: Monument; areas: Area[
             </select>
           </Field>
 
-          <Field label="住所">
+          <Field label="所在地">
             <input
               name="address"
               defaultValue={monument.address ?? ''}
@@ -249,8 +249,8 @@ export function EditForm({ monument, areas }: { monument: Monument; areas: Area[
             {latitude !== null && <input type="hidden" name="latitude" value={latitude} readOnly />}
             {longitude !== null && <input type="hidden" name="longitude" value={longitude} readOnly />}
             {latitude !== null && longitude !== null && !showMapPicker && (
-              <p className="mb-2 flex items-center gap-1 text-xs" style={{ color: '#2d7a3a' }}>
-                <MapPin size={12} />
+              <p className="mb-2 inline-flex items-center gap-1 text-sm" style={{ color: '#2d7a3a', backgroundColor: 'rgba(255,255,255,0.85)', padding: '2px 6px', borderRadius: '4px' }}>
+                <MapPin size={14} />
                 位置指定済み（{latitude.toFixed(4)}, {longitude.toFixed(4)}）
               </p>
             )}
@@ -258,26 +258,26 @@ export function EditForm({ monument, areas }: { monument: Monument; areas: Area[
               <button
                 type="button"
                 onClick={() => setShowMapPicker(true)}
-                className="text-xs underline"
-                style={{ color: '#b35c44' }}
+                className="text-sm underline"
+                style={{ color: '#b35c44', backgroundColor: 'rgba(255,255,255,0.85)', padding: '2px 6px', borderRadius: '4px' }}
               >
                 地図上で位置を変更する
               </button>
             )}
             {showMapPicker && (
               <div>
-                <p className="mb-2 text-xs" style={{ color: '#5a5a5a' }}>地図をタップして位置を指定してください</p>
+                <p className="mb-2 inline-block text-sm" style={{ color: '#5a5a5a', backgroundColor: 'rgba(255,255,255,0.85)', padding: '2px 6px', borderRadius: '4px' }}>地図をタップして位置を指定してください</p>
                 <div
                   ref={mapPickerRef}
                   className="h-52 w-full overflow-hidden rounded-xl"
                   style={{ border: '2px dashed #b35c44' }}
                 />
                 {latitude !== null && longitude !== null ? (
-                  <p className="mt-1.5 text-xs" style={{ color: '#2d7a3a' }}>
+                  <p className="mt-1.5 inline-block text-sm" style={{ color: '#2d7a3a', backgroundColor: 'rgba(255,255,255,0.85)', padding: '2px 6px', borderRadius: '4px' }}>
                     選択済み（{latitude.toFixed(4)}, {longitude.toFixed(4)}）
                   </p>
                 ) : (
-                  <p className="mt-1.5 text-xs" style={{ color: '#5a5a5a' }}>地図をタップすると位置が決まります</p>
+                  <p className="mt-1.5 inline-block text-sm" style={{ color: '#5a5a5a', backgroundColor: 'rgba(255,255,255,0.85)', padding: '2px 6px', borderRadius: '4px' }}>地図をタップすると位置が決まります</p>
                 )}
               </div>
             )}
@@ -333,10 +333,11 @@ export function EditForm({ monument, areas }: { monument: Monument; areas: Area[
 
           <button
             type="submit"
-            className="w-full rounded-xl py-3.5 text-base font-medium text-white"
+            disabled={isPending}
+            className="w-full rounded-xl py-3.5 text-base font-medium text-white disabled:opacity-50"
             style={{ backgroundColor: '#b35c44' }}
           >
-            保存する
+            {isPending ? '保存中...' : '保存する'}
           </button>
         </form>
       </div>

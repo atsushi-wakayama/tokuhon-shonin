@@ -211,7 +211,7 @@ export function AdminClient({
                 ))}
               </div>
 
-              <label className="mb-4 flex cursor-pointer items-center gap-2">
+              <label className="mb-4 inline-flex cursor-pointer items-center gap-2" style={{ backgroundColor: 'rgba(255,255,255,0.85)', padding: '6px 10px', borderRadius: '8px' }}>
                 <input
                   type="checkbox"
                   checked={onlyEmpty}
@@ -224,8 +224,8 @@ export function AdminClient({
               </label>
 
               <div className="mb-3 flex items-center justify-between">
-                <p className="text-xs" style={{ color: '#9a8a7a' }}>
-                  {filtered.length}件
+                <p className="text-sm" style={{ color: '#5a5a5a', backgroundColor: 'rgba(255,255,255,0.85)', padding: '2px 8px', borderRadius: '6px' }}>
+                  スポット {filtered.length}件
                 </p>
                 <Link
                   href="/admin/monuments/new"

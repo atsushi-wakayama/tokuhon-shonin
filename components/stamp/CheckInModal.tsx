@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Camera, Upload, X, Loader2 } from 'lucide-react'
 import { useCheckIn } from '@/lib/hooks/useCheckIn'
 import { useGeolocation } from '@/lib/hooks/useGeolocation'
@@ -19,6 +19,10 @@ export function CheckInModal({ monument, userId, onSuccess, onClose }: Props) {
   const [file, setFile] = useState<File | null>(null)
   const { latitude, longitude, error: geoError, loading: geoLoading } = useGeolocation()
   const { checkIn, status, errorMessage } = useCheckIn()
+
+  useEffect(() => {
+    return () => { if (preview) URL.revokeObjectURL(preview) }
+  }, [preview])
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0]

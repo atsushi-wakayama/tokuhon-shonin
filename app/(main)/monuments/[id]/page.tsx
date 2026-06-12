@@ -19,14 +19,12 @@ export default async function MonumentDetailPage({ params }: { params: Promise<{
 
   const m = monument as MonumentWithArea
 
-  const { count: prevCount } = await supabase
-    .from('monuments')
-    .select('id', { count: 'exact', head: true })
-    .lt('name', m.name)
+  const [{ count: prevCount }, { data: { user } }] = await Promise.all([
+    supabase.from('monuments').select('id', { count: 'exact', head: true }).lt('name', m.name),
+    supabase.auth.getUser(),
+  ])
 
   const monumentNo = String((prevCount ?? 0) + 1).padStart(2, '0')
-
-  const { data: { user } } = await supabase.auth.getUser()
 
   let isStamped = false
   if (user) {

@@ -22,7 +22,6 @@ const sharp = require('sharp');
 // 設定
 // ─────────────────────────────────────────
 const DESIGN_MD_PATH = path.join(__dirname, '..', 'DESIGN.md');  // プロジェクトルートのDESIGN.md
-const OUTPUT_PATH = path.join(__dirname, '設計書_徳本上人スタンプラリーアプリ.docx');
 const PURPLE = "5B4FCF";
 
 // ─────────────────────────────────────────
@@ -458,6 +457,7 @@ function buildCoverPage(meta) {
 
 const meta = extractMeta(lines);
 console.log('📋 メタ情報：', meta);
+const OUTPUT_PATH = path.join(__dirname, `設計書_徳本上人スタンプラリーアプリ_v${meta.version}.docx`);
 
 const bodyElements = parseMarkdownToWordElements(lines);
 console.log('📝 Word要素数：', bodyElements.length);

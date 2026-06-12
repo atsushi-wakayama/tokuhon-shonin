@@ -55,8 +55,8 @@ export default function MapPage() {
     const supabase = createClient()
     supabase.from('monuments').select('*, area:areas(*)').eq('status', 'approved').order('name')
       .then(({ data }) => { if (data) setMonuments(data) })
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsLoggedIn(!!session)
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setIsLoggedIn(!!user)
     })
   }, [])
 
@@ -149,7 +149,7 @@ function MapFallback({
   }
 
   return (
-    <div ref={containerRef} className="relative flex flex-col h-[calc(100dvh-5rem-env(safe-area-inset-bottom,0px))] overflow-hidden"
+    <div ref={containerRef} className="relative flex flex-col h-[calc(100dvh-7rem-env(safe-area-inset-bottom,0px))] overflow-hidden"
       style={{ touchAction: 'none' }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
@@ -254,9 +254,13 @@ function GoogleMapView({
 
   useEffect(() => {
     if (!mapRef.current || monuments.length === 0) return
+    let unmounted = false
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const createdMarkers: any[] = []
     import('@googlemaps/js-api-loader').then(({ Loader }) => {
       const loader = new Loader({ apiKey, version: 'weekly', language: 'ja', region: 'JP' })
       loader.load().then(async () => {
+        if (unmounted) return
         const { Map } = await google.maps.importLibrary('maps') as google.maps.MapsLibrary
         const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary('marker') as google.maps.MarkerLibrary
 
@@ -274,15 +278,20 @@ function GoogleMapView({
           const pin = new PinElement({ background: '#92400e', borderColor: '#78350f', glyphColor: '#fef3c7', scale: 1.2 })
           const marker = new AdvancedMarkerElement({ map, position: { lat: coords.lat, lng: coords.lng }, title: m.name, content: pin.element })
           marker.addListener('click', () => { window.location.href = `/monuments/${m.id}` })
+          createdMarkers.push(marker)
         })
         setLoaded(true)
       })
     })
+    return () => {
+      unmounted = true
+      createdMarkers.forEach(m => { m.map = null })
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [monuments])
 
   return (
-    <div className="relative h-[calc(100dvh-5rem-env(safe-area-inset-bottom,0px))]">
+    <div className="relative h-[calc(100dvh-7rem-env(safe-area-inset-bottom,0px))]">
       <div ref={mapRef} className="h-full w-full" />
       {!loaded && <div className="absolute inset-0 flex items-center justify-center bg-stone-100"><p className="text-sm text-stone-500">地図を読み込み中...</p></div>}
       <Link
