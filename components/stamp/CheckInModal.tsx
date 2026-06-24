@@ -17,6 +17,7 @@ export function CheckInModal({ monument, userId, onSuccess, onClose }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [file, setFile] = useState<File | null>(null)
+  const [memo, setMemo] = useState('')
   const { latitude, longitude, error: geoError, loading: geoLoading } = useGeolocation()
   const { checkIn, status, errorMessage } = useCheckIn()
 
@@ -34,7 +35,7 @@ export function CheckInModal({ monument, userId, onSuccess, onClose }: Props) {
 
   async function handleSubmit() {
     if (!file || latitude === null || longitude === null) return
-    const ok = await checkIn({ monument, userLat: latitude, userLng: longitude, photoFile: file, userId })
+    const ok = await checkIn({ monument, userLat: latitude, userLng: longitude, photoFile: file, userId, memo: memo.trim() || null })
     if (ok) onSuccess()
   }
 
@@ -42,7 +43,7 @@ export function CheckInModal({ monument, userId, onSuccess, onClose }: Props) {
     <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50">
       <div className="max-h-[80vh] w-full overflow-y-auto rounded-t-2xl bg-white p-6 pb-24 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg" style={{ color: '#423629' }}>チェックイン</h2>
+          <h2 className="text-lg font-medium" style={{ color: '#423629' }}>チェックイン</h2>
           <button onClick={onClose} className="rounded-full p-1 text-stone-400 hover:bg-stone-100">
             <X size={20} />
           </button>
@@ -81,6 +82,23 @@ export function CheckInModal({ monument, userId, onSuccess, onClose }: Props) {
 
         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
 
+        <div className="mb-4">
+          <label className="mb-1.5 block text-sm font-medium" style={{ color: '#423629' }}>
+            ひとことメモ
+          </label>
+          <textarea
+            value={memo}
+            onChange={(e) => setMemo(e.target.value)}
+            rows={3}
+            placeholder="このスポットでの思い出など..."
+            className="w-full resize-none rounded-xl px-3 py-2.5 text-base outline-none focus:ring-1 focus:ring-[#b35c44]"
+            style={{ border: '1px solid #d4c5b0' }}
+          />
+          <p className="mt-1.5 text-xs" style={{ color: '#5a5a5a' }}>
+            ※チェックイン後、マイページのスタンプ帳で編集できます。
+          </p>
+        </div>
+
         {(geoError || errorMessage) && (
           <p className="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-600">{geoError || errorMessage}</p>
         )}
@@ -94,7 +112,7 @@ export function CheckInModal({ monument, userId, onSuccess, onClose }: Props) {
         <button
           onClick={handleSubmit}
           disabled={!file || geoLoading || status === 'uploading' || latitude === null}
-          className="w-full rounded-xl py-3 text-white disabled:opacity-40"
+          className="w-full rounded-xl py-3 font-medium text-white disabled:opacity-40"
           style={{ backgroundColor: '#b35c44' }}>
           {status === 'uploading' ? (
             <span className="flex items-center justify-center gap-2">

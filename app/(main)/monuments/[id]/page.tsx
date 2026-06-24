@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation'
-import { MapPin, Navigation, ArrowLeft, BookOpen } from 'lucide-react'
-import Link from 'next/link'
+import Image from 'next/image'
+import { MapPin, Navigation, BookOpen, Users } from 'lucide-react'
 import { CheckInButton } from './CheckInButton'
+import { BackButton } from '@/components/layout/BackButton'
 import { createClient } from '@/lib/supabase/server'
 import type { MonumentWithArea } from '@/lib/types/database.types'
 
@@ -19,12 +20,14 @@ export default async function MonumentDetailPage({ params }: { params: Promise<{
 
   const m = monument as MonumentWithArea
 
-  const [{ count: prevCount }, { data: { user } }] = await Promise.all([
+  const [{ count: prevCount }, { data: { user } }, { data: stampCountRow }] = await Promise.all([
     supabase.from('monuments').select('id', { count: 'exact', head: true }).lt('name', m.name),
     supabase.auth.getUser(),
+    supabase.from('monument_stamp_counts').select('stamp_count').eq('monument_id', id).maybeSingle(),
   ])
 
   const monumentNo = String((prevCount ?? 0) + 1).padStart(2, '0')
+  const stampCount = (stampCountRow as any)?.stamp_count ?? 0
 
   let isStamped = false
   if (user) {
@@ -38,26 +41,18 @@ export default async function MonumentDetailPage({ params }: { params: Promise<{
   ].join(', ')
 
   return (
-    <div className="min-h-screen" style={{ backgroundImage: 'url(/bg-pattern.png)', backgroundSize: '320px', backgroundRepeat: 'repeat', backgroundColor: '#f5f0eb' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#f5f0eb' }}>
       <div className="mx-auto max-w-md">
 
         {/* ヘッダー：和紙テクスチャ */}
         <div className="relative px-4 pb-5 pt-4" style={{ backgroundColor: '#faf7f0', backgroundImage: washibg }}>
 
           {/* 戻るボタン */}
-          <Link href="/monuments" className="inline-flex items-center justify-center rounded-full p-2 shadow-sm"
-            style={{ backgroundColor: 'rgba(255,255,255,0.85)', border: '1px solid #d4c5b0' }}>
-            <ArrowLeft size={18} style={{ color: '#4a3a2a' }} />
-          </Link>
+          <BackButton fallbackHref="/monuments" />
 
           {/* 朱印スタンプ */}
-          <div className="absolute right-5 top-4" style={{ transform: 'rotate(3deg)' }}>
-            <div className="px-2 py-1 text-center text-xs leading-snug"
-              style={{ border: '2px solid #C0392B', color: '#C0392B', letterSpacing: '0.08em', lineHeight: '1.5' }}>
-              <div>徳本</div>
-              <div>上人</div>
-              <div>霊場</div>
-            </div>
+          <div className="absolute right-0 top-0 z-10" style={{ transform: 'rotate(8deg)' }}>
+            <Image src="/tokuhoninkan.png" alt="徳本上人霊場" width={140} height={140} />
           </div>
 
           {/* タイトル行 */}
@@ -68,6 +63,11 @@ export default async function MonumentDetailPage({ params }: { params: Promise<{
             </span>
             <h1 className="text-2xl leading-snug" style={{ color: '#4a3a2a' }}>{m.name}</h1>
           </div>
+
+          <p className="mt-1.5 flex items-center justify-end gap-1 text-sm font-medium" style={{ color: '#8B4513' }}>
+            <Users size={13} />
+            {stampCount}人がチェックイン済
+          </p>
         </div>
 
         {/* ボディ */}

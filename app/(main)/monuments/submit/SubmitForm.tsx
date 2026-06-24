@@ -2,30 +2,20 @@
 
 import { useRef, useState, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Camera, Upload, X, Loader2, MapPin, ChevronLeft } from 'lucide-react'
+import { Camera, Upload, X, Loader2, MapPin, ArrowLeft } from 'lucide-react'
 import { useGeolocation } from '@/lib/hooks/useGeolocation'
+import { createClient } from '@/lib/supabase/client'
+import { useNavigationGuard } from '@/lib/contexts/NavigationGuardContext'
 import { submitMonument } from './actions'
-
-const AREAS = [
-  { id: 1, label: '和歌山県' },
-  { id: 3, label: '近畿・中部' },
-  { id: 2, label: '関東・東京' },
-  { id: 4, label: '東北' },
-]
-
-const PREFECTURES = [
-  '北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
-  '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
-  '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県',
-  '静岡県', '愛知県', '三重県', '滋賀県', '京都府', '大阪府', '兵庫県',
-  '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県',
-  '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県',
-  '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県',
-]
 
 interface Props {
   backPath: string
 }
+
+const washibg = [
+  'repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(160,130,100,0.12) 19px, rgba(160,130,100,0.12) 20px)',
+  'repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(160,130,100,0.12) 19px, rgba(160,130,100,0.12) 20px)',
+].join(', ')
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
@@ -45,24 +35,21 @@ export function SubmitForm({ backPath }: Props) {
   const mapPickerRef = useRef<HTMLDivElement>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapInstanceRef = useRef<any>(null)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const markerRef = useRef<any>(null)
 
   const [name, setName] = useState('')
-  const [address, setAddress] = useState('')
-  const [prefecture, setPrefecture] = useState('')
-  const [areaId, setAreaId] = useState<string>('')
-  const [description, setDescription] = useState('')
-  const [accessInfo, setAccessInfo] = useState('')
+  const [memo, setMemo] = useState('')
+  const [adminInfo, setAdminInfo] = useState('')
   const [latitude, setLatitude] = useState<number | null>(null)
   const [longitude, setLongitude] = useState<number | null>(null)
+  const [pendingLat, setPendingLat] = useState<number | null>(null)
+  const [pendingLng, setPendingLng] = useState<number | null>(null)
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitSuccess, setSubmitSuccess] = useState(false)
   const [showMapPicker, setShowMapPicker] = useState(false)
-  const [showDiscardDialog, setShowDiscardDialog] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const { setBlocked, requestNavigation, pendingNav, confirmNavigation, cancelNavigation } = useNavigationGuard()
 
   const { latitude: geoLat, longitude: geoLng, error: geoError, loading: geoLoading } = useGeolocation()
 
@@ -80,20 +67,22 @@ export function SubmitForm({ backPath }: Props) {
     if (geoError) setShowMapPicker(true)
   }, [geoError])
 
+  // 全画面マップピッカーの初期化（中央固定ピン方式）
   useEffect(() => {
-    if (!showMapPicker || !mapPickerRef.current || mapInstanceRef.current) return
+    if (!showMapPicker || !mapPickerRef.current) return
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
     if (!apiKey || apiKey === 'YOUR_GOOGLE_MAPS_API_KEY') return
+
+    const initLat = latitude ?? 36.2
+    const initLng = longitude ?? 138.25
+    const initZoom = latitude !== null ? 15 : 6
+    setPendingLat(initLat)
+    setPendingLng(initLng)
 
     import('@googlemaps/js-api-loader').then(({ Loader }) => {
       const loader = new Loader({ apiKey, version: 'weekly', language: 'ja', region: 'JP' })
       loader.load().then(async () => {
         const { Map } = await google.maps.importLibrary('maps') as google.maps.MapsLibrary
-        const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary('marker') as google.maps.MarkerLibrary
-
-        const initLat = latitude ?? 36.2
-        const initLng = longitude ?? 138.25
-        const initZoom = latitude !== null ? 13 : 6
 
         const map = new Map(mapPickerRef.current!, {
           center: { lat: initLat, lng: initLng },
@@ -101,40 +90,45 @@ export function SubmitForm({ backPath }: Props) {
           mapId: 'DEMO_MAP_ID',
           disableDefaultUI: true,
           zoomControl: true,
+          gestureHandling: 'greedy',
         })
         mapInstanceRef.current = map
 
-        if (latitude !== null && longitude !== null) {
-          const pin = new PinElement({ background: '#b35c44', borderColor: '#8c3d2e', glyphColor: '#fff' })
-          markerRef.current = new AdvancedMarkerElement({ map, position: { lat: latitude, lng: longitude }, content: pin.element })
-        }
-
-        map.addListener('click', (e: google.maps.MapMouseEvent) => {
-          if (!e.latLng) return
-          const lat = Math.round(e.latLng.lat() * 10000) / 10000
-          const lng = Math.round(e.latLng.lng() * 10000) / 10000
-          setLatitude(lat)
-          setLongitude(lng)
-          if (markerRef.current) {
-            markerRef.current.position = { lat, lng }
-          } else {
-            const pin = new PinElement({ background: '#b35c44', borderColor: '#8c3d2e', glyphColor: '#fff' })
-            markerRef.current = new AdvancedMarkerElement({ map, position: { lat, lng }, content: pin.element })
-          }
+        map.addListener('center_changed', () => {
+          const c = map.getCenter()
+          if (!c) return
+          setPendingLat(Math.round(c.lat() * 10000) / 10000)
+          setPendingLng(Math.round(c.lng() * 10000) / 10000)
         })
       })
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showMapPicker])
 
-  const isDirty = name !== '' || address !== '' || prefecture !== '' || description !== '' || accessInfo !== '' || photoFile !== null
+  function confirmMapPosition() {
+    if (pendingLat !== null && pendingLng !== null) {
+      setLatitude(pendingLat)
+      setLongitude(pendingLng)
+    }
+    mapInstanceRef.current = null
+    setShowMapPicker(false)
+  }
+
+  function cancelMapPicker() {
+    mapInstanceRef.current = null
+    setShowMapPicker(false)
+  }
+
+  const isDirty = name !== '' || memo !== '' || adminInfo !== '' || photoFile !== null
+
+  useEffect(() => {
+    setBlocked(isDirty)
+    return () => setBlocked(false)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDirty])
 
   const handleBack = () => {
-    if (isDirty) {
-      setShowDiscardDialog(true)
-    } else {
-      router.push(backPath)
-    }
+    requestNavigation({ type: 'href', href: backPath })
   }
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
@@ -152,30 +146,56 @@ export function SubmitForm({ backPath }: Props) {
       return
     }
     if (latitude === null || longitude === null) {
-      setSubmitError('場所を指定してください（GPS取得か地図上でタップ）')
+      setSubmitError('場所を指定してください（GPS取得か地図で指定）')
       return
     }
 
     setSubmitError(null)
-    const fd = new FormData()
-    fd.append('name', name.trim())
-    fd.append('latitude', String(latitude))
-    fd.append('longitude', String(longitude))
-    fd.append('prefecture', prefecture)
-    fd.append('address', address)
-    if (areaId) fd.append('area_id', areaId)
-    fd.append('description', description)
-    fd.append('access_info', accessInfo)
-    if (photoFile) fd.append('photo', photoFile)
 
     startTransition(async () => {
       try {
+        let photoUrl: string | null = null
+        const supabase = createClient()
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+        if (!user) {
+          setSubmitError('未ログインです')
+          return
+        }
+
+        if (photoFile) {
+          const ext = photoFile.name.split('.').pop() || 'jpg'
+          const path = `stamps/${user.id}/submission_${Date.now()}.${ext}`
+          const { error: uploadError } = await supabase.storage
+            .from('user-photos')
+            .upload(path, photoFile, { upsert: false })
+
+          if (uploadError) {
+            setSubmitError('写真のアップロードに失敗しました')
+            return
+          }
+
+          const { data: urlData } = supabase.storage.from('user-photos').getPublicUrl(path)
+          photoUrl = urlData.publicUrl
+        }
+
+        const fd = new FormData()
+        fd.append('name', name.trim())
+        fd.append('latitude', String(latitude))
+        fd.append('longitude', String(longitude))
+        fd.append('admin_info', adminInfo)
+        fd.append('memo', memo)
+        if (photoUrl) fd.append('photo_url', photoUrl)
+
         const result = await submitMonument(fd)
         if (result?.error) {
           setSubmitError(result.error)
-        } else {
-          setSubmitSuccess(true)
+          return
         }
+
+        setBlocked(false)
+        setSubmitSuccess(true)
       } catch (e) {
         console.error('[SubmitForm] submitMonument threw:', e)
         setSubmitError('申請に失敗しました。もう一度お試しください')
@@ -211,7 +231,7 @@ export function SubmitForm({ backPath }: Props) {
   return (
     <>
       {/* 破棄確認ダイアログ */}
-      {showDiscardDialog && (
+      {pendingNav && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
           style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
@@ -222,7 +242,7 @@ export function SubmitForm({ backPath }: Props) {
             </p>
             <div className="flex gap-3">
               <button
-                onClick={() => setShowDiscardDialog(false)}
+                onClick={cancelNavigation}
                 className="flex-1 rounded-xl py-2.5 text-sm font-medium"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.9)',
@@ -233,7 +253,7 @@ export function SubmitForm({ backPath }: Props) {
                 入力に戻る
               </button>
               <button
-                onClick={() => router.push(backPath)}
+                onClick={confirmNavigation}
                 className="flex-1 rounded-xl py-2.5 text-sm font-medium text-white"
                 style={{ backgroundColor: '#b35c44' }}
               >
@@ -244,17 +264,68 @@ export function SubmitForm({ backPath }: Props) {
         </div>
       )}
 
-      {/* 戻るボタン */}
-      <button
-        onClick={handleBack}
-        className="mb-4 flex items-center gap-1 text-sm"
-        style={{ color: '#b35c44', backgroundColor: 'rgba(255,255,255,0.85)', padding: '4px 10px 4px 6px', borderRadius: '8px' }}
-      >
-        <ChevronLeft size={16} />
-        {backPath === '/map' ? 'マップに戻る' : 'スポット一覧に戻る'}
-      </button>
+      {/* 全画面マップピッカー */}
+      {showMapPicker && (
+        <div className="fixed inset-0 z-[60] bg-white">
+          <div ref={mapPickerRef} className="absolute inset-0" />
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+          {/* 中央固定ピン */}
+          <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full">
+            <MapPin size={40} style={{ color: '#b35c44' }} fill="#b35c44" />
+          </div>
+
+          {/* 閉じるボタン */}
+          <button
+            type="button"
+            onClick={cancelMapPicker}
+            className="absolute right-4 top-4 rounded-full bg-white p-2 shadow-md"
+            style={{ color: '#423629' }}
+          >
+            <X size={20} />
+          </button>
+
+          {/* 案内・決定ボタン */}
+          <div className="absolute inset-x-0 bottom-0 p-4">
+            <div
+              className="rounded-2xl p-4 text-center shadow-lg"
+              style={{ backgroundColor: 'rgba(255,255,255,0.95)' }}
+            >
+              <p className="mb-3 text-sm" style={{ color: '#5a5a5a' }}>
+                地図を動かして、ピンの位置にスポットを指定してください
+              </p>
+              {pendingLat !== null && pendingLng !== null && (
+                <p className="mb-3 text-xs" style={{ color: '#2d7a3a' }}>
+                  選択中（{pendingLat.toFixed(4)}, {pendingLng.toFixed(4)}）
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={confirmMapPosition}
+                className="w-full rounded-xl py-3 text-base font-medium text-white"
+                style={{ backgroundColor: '#b35c44' }}
+              >
+                ここに決定
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ヘッダー：和紙テクスチャ */}
+      <div className="px-4 pb-5 pt-4" style={{ backgroundColor: '#faf7f0', backgroundImage: washibg }}>
+        <button
+          onClick={handleBack}
+          className="inline-flex items-center justify-center rounded-full p-2 shadow-sm"
+          style={{ backgroundColor: 'rgba(255,255,255,0.85)', border: '1px solid #d4c5b0' }}
+        >
+          <ArrowLeft size={18} style={{ color: '#4a3a2a' }} />
+        </button>
+        <h1 className="mt-3 text-2xl font-medium leading-snug" style={{ color: '#4a3a2a' }}>
+          新しいスポットを申請
+        </h1>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4 px-4 pt-6">
 
         {/* スポット名 */}
         <div
@@ -288,9 +359,9 @@ export function SubmitForm({ backPath }: Props) {
             </p>
           )}
 
-          {!geoLoading && latitude !== null && longitude !== null && !showMapPicker && (
+          {!geoLoading && latitude !== null && longitude !== null && (
             <p className="flex items-center gap-1 text-sm" style={{ color: '#2d7a3a' }}>
-              <MapPin size={14} /> 現在地を取得しました
+              <MapPin size={14} /> 位置を取得しました（{latitude.toFixed(4)}, {longitude.toFixed(4)}）
             </p>
           )}
 
@@ -299,140 +370,20 @@ export function SubmitForm({ backPath }: Props) {
               className="mb-3 rounded-lg px-3 py-2.5 text-sm"
               style={{ backgroundColor: '#fef9ec', color: '#92400e', border: '1px solid #fcd34d' }}
             >
-              現在地を取得できませんでした。地図上でスポットの場所をタップして指定してください。
+              現在地を取得できませんでした。地図でスポットの場所を指定してください。
             </p>
           )}
 
-          {/* マップピッカー（GPS失敗時 or 手動指定ボタン押下時） */}
-          {showMapPicker && (
-            <div>
-              <p className="mb-2 text-xs" style={{ color: '#5a5a5a' }}>
-                地図をタップして場所を指定してください
-              </p>
-              <div
-                ref={mapPickerRef}
-                className="h-52 w-full overflow-hidden rounded-xl"
-                style={{ border: '2px dashed #b35c44' }}
-              />
-              {latitude !== null && longitude !== null ? (
-                <p className="mt-1.5 text-xs" style={{ color: '#2d7a3a' }}>
-                  <MapPin size={11} className="inline mr-0.5" />
-                  選択済み（{latitude.toFixed(4)}, {longitude.toFixed(4)}）
-                </p>
-              ) : (
-                <p className="mt-1.5 text-xs" style={{ color: '#5a5a5a' }}>
-                  地図をタップすると位置が決まります
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* GPS成功時でも手動で変更したい場合のボタン */}
-          {!showMapPicker && !geoLoading && (
+          {!geoLoading && (
             <button
               type="button"
               onClick={() => setShowMapPicker(true)}
               className="mt-2 text-xs underline"
               style={{ color: '#b35c44' }}
             >
-              地図上で指定する
+              地図で指定する
             </button>
           )}
-        </div>
-
-        {/* 都道府県 */}
-        <div
-          className="rounded-2xl p-4"
-          style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: '1px solid #d4c5b0' }}
-        >
-          <Field label="都道府県">
-            <select
-              value={prefecture}
-              onChange={(e) => setPrefecture(e.target.value)}
-              className="w-full rounded-xl px-3 py-2.5 text-base outline-none focus:ring-1 focus:ring-[#b35c44]"
-              style={{ border: '1px solid #d4c5b0', backgroundColor: 'white' }}
-            >
-              <option value="">選択してください</option>
-              {PREFECTURES.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-          </Field>
-        </div>
-
-        {/* 所在地 */}
-        <div
-          className="rounded-2xl p-4"
-          style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: '1px solid #d4c5b0' }}
-        >
-          <Field label="所在地">
-            <input
-              type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="例：和歌山県日高郡日高川町..."
-              className="w-full rounded-xl px-3 py-2.5 text-base outline-none focus:ring-1 focus:ring-[#b35c44]"
-              style={{ border: '1px solid #d4c5b0' }}
-            />
-          </Field>
-        </div>
-
-        {/* エリア */}
-        <div
-          className="rounded-2xl p-4"
-          style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: '1px solid #d4c5b0' }}
-        >
-          <Field label="エリア">
-            <select
-              value={areaId}
-              onChange={(e) => setAreaId(e.target.value)}
-              className="w-full rounded-xl px-3 py-2.5 text-base outline-none focus:ring-1 focus:ring-[#b35c44]"
-              style={{ border: '1px solid #d4c5b0', backgroundColor: 'white' }}
-            >
-              <option value="">選択してください</option>
-              {AREAS.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.label}
-                </option>
-              ))}
-            </select>
-          </Field>
-        </div>
-
-        {/* 解説 */}
-        <div
-          className="rounded-2xl p-4"
-          style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: '1px solid #d4c5b0' }}
-        >
-          <Field label="解説">
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              placeholder="スポットについての説明..."
-              className="w-full resize-none rounded-xl px-3 py-2.5 text-base outline-none focus:ring-1 focus:ring-[#b35c44]"
-              style={{ border: '1px solid #d4c5b0' }}
-            />
-          </Field>
-        </div>
-
-        {/* アクセス情報 */}
-        <div
-          className="rounded-2xl p-4"
-          style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: '1px solid #d4c5b0' }}
-        >
-          <Field label="アクセス情報">
-            <textarea
-              value={accessInfo}
-              onChange={(e) => setAccessInfo(e.target.value)}
-              rows={3}
-              placeholder="電車・バスなどのアクセス方法..."
-              className="w-full resize-none rounded-xl px-3 py-2.5 text-base outline-none focus:ring-1 focus:ring-[#b35c44]"
-              style={{ border: '1px solid #d4c5b0' }}
-            />
-          </Field>
         </div>
 
         {/* 写真 */}
@@ -497,6 +448,51 @@ export function SubmitForm({ backPath }: Props) {
             className="hidden"
             onChange={handleFileSelect}
           />
+          {!photoFile && (
+            <p className="mt-2 text-xs font-medium" style={{ color: '#c0392b' }}>
+              ※写真がない場合、申請のみ行われます。（チェックインは行われません。）
+            </p>
+          )}
+        </div>
+
+        {/* ひとことメモ */}
+        <div
+          className="rounded-2xl p-4"
+          style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: '1px solid #d4c5b0' }}
+        >
+          <Field label="ひとことメモ">
+            <textarea
+              value={memo}
+              onChange={(e) => setMemo(e.target.value)}
+              rows={3}
+              placeholder="このスポットでの思い出など..."
+              className="w-full resize-none rounded-xl px-3 py-2.5 text-base outline-none focus:ring-1 focus:ring-[#b35c44]"
+              style={{ border: '1px solid #d4c5b0' }}
+            />
+          </Field>
+          <p className="mt-1.5 text-xs" style={{ color: '#5a5a5a' }}>
+            ※マイページのスタンプ帳で承認後に編集できます。
+          </p>
+        </div>
+
+        {/* 管理者への情報共有 */}
+        <div
+          className="rounded-2xl p-4"
+          style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: '1px solid #d4c5b0' }}
+        >
+          <Field label="管理者への情報共有">
+            <textarea
+              value={adminInfo}
+              onChange={(e) => setAdminInfo(e.target.value)}
+              rows={3}
+              placeholder="このスポットの由来など、共有したい情報があれば..."
+              className="w-full resize-none rounded-xl px-3 py-2.5 text-base outline-none focus:ring-1 focus:ring-[#b35c44]"
+              style={{ border: '1px solid #d4c5b0' }}
+            />
+          </Field>
+          <p className="mt-1.5 text-xs" style={{ color: '#5a5a5a' }}>
+            ※この内容は管理者だけが見ることができます。管理者がスポットの解説を作成する際、ご提供いただいた情報を使用させていただく場合があります。ご了承ください。
+          </p>
         </div>
 
         {/* エラーメッセージ */}

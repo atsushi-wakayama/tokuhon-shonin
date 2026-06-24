@@ -15,13 +15,15 @@ export function MonumentCard({ monument, isStamped }: Props) {
         style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: '1px solid #d4c5b0' }}>
         <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-stone-100">
           {monument.image_urls[0] ? (
-            <Image src={monument.image_urls[0]} alt={monument.name} fill className="object-cover" />
+            <Image src={monument.image_urls[0]} alt={monument.name} fill sizes="64px" className="object-cover" />
           ) : (
-            <div className="flex h-full w-full flex-col items-center justify-center rounded-lg text-center"
+            <div className="flex h-full w-full flex-col items-center justify-center gap-0.5 rounded-lg text-center"
               style={{ backgroundColor: '#fdf0e8' }}>
-              <span className="text-xs leading-tight" style={{ color: '#b35c44' }}>
-                {monument.area?.name ?? monument.prefecture}
-              </span>
+              {(monument.area?.name ?? monument.prefecture).split('・').map((part, i) => (
+                <span key={i} className="text-sm font-medium leading-tight" style={{ color: '#b35c44' }}>
+                  {part}
+                </span>
+              ))}
             </div>
           )}
           {isStamped && (

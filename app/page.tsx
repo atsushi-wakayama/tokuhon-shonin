@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
@@ -7,43 +8,41 @@ export default async function Home() {
   const { data: { session } } = await supabase.auth.getSession()
   if (session) redirect('/map')
   return (
-    <main
-      className="flex min-h-screen flex-col items-center justify-center px-6 relative"
-      style={{ backgroundImage: 'url(/bg-pattern.png)', backgroundSize: '420px', backgroundRepeat: 'repeat' }}
-    >
-      <div className="absolute inset-0" style={{ backgroundColor: 'rgba(255,255,255,0.6)' }} />
-      <div className="relative z-10 mb-8 mt-16 text-center">
-        <p className="mb-2 text-sm tracking-[0.3em]" style={{ color: '#423629' }}>江戸時代 念仏行者</p>
-        <h1 className="text-4xl tracking-widest" style={{ color: '#423629' }}>徳本上人</h1>
-        <p className="mt-1 text-4xl tracking-widest" style={{ color: '#423629' }}>名号碑めぐり</p>
+    <main className="flex min-h-screen flex-col" style={{ backgroundColor: '#f5f0eb' }}>
+      {/* 写真ヒーロー部分（写真＋雲＋タイトルを1枚に合成した画像） */}
+      <div className="relative w-full aspect-[3/4]">
+        <Image
+          src="/tokuhontoppicture.webp"
+          alt="徳本上人 名号碑めぐり"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
       </div>
 
-      <div className="relative z-10 mb-6 flex justify-center">
-        <img src="/monk.png" alt="徳本上人" className="h-36 w-auto drop-shadow-md" />
-      </div>
-
-      <div className="relative z-10 mb-10 text-center">
-        <img src="/namu.png" alt="南無阿弥陀仏" className="h-16 w-auto mx-auto" />
-        <p className="mt-4 text-sm leading-relaxed" style={{ color: '#5a5a5a' }}>
+      {/* 説明文・ボタン */}
+      <div className="flex flex-1 flex-col items-center px-6 pt-5">
+        <p className="mb-4 text-center text-sm leading-relaxed" style={{ color: '#5a5a5a' }}>
           全国1,500基以上の名号碑を巡り<br />デジタルスタンプを集めよう
         </p>
-      </div>
 
-      <div className="relative z-10 w-full max-w-xs space-y-3">
-        <Link
-          href="/login"
-          className="block w-full rounded-xl py-3.5 text-center text-lg tracking-wide shadow-lg"
-          style={{ backgroundColor: '#b35c44', color: '#ffffff' }}
-        >
-          はじめる
-        </Link>
-        <Link
-          href="/map"
-          className="block w-full rounded-xl py-3.5 text-center text-white shadow-lg"
-          style={{ backgroundColor: '#b35c44' }}
-        >
-          ログインせずに地図を見る
-        </Link>
+        <div className="w-full max-w-xs space-y-2.5">
+          <Link
+            href="/login"
+            className="block w-full rounded-full py-3 text-center text-base tracking-wide shadow-lg"
+            style={{ backgroundColor: '#b35c44', color: '#ffffff' }}
+          >
+            はじめる
+          </Link>
+          <Link
+            href="/map"
+            className="block w-full rounded-full py-3 text-center text-base shadow-lg"
+            style={{ backgroundColor: '#b35c44', color: '#ffffff' }}
+          >
+            ログインせずに地図を見る
+          </Link>
+        </div>
       </div>
     </main>
   )

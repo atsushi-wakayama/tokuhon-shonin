@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Map, List, BookOpen, User } from 'lucide-react'
+import { useNavigationGuard } from '@/lib/contexts/NavigationGuardContext'
 
 interface Props {
   avatarUrl?: string | null
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
 export function BottomNav({ avatarUrl, initial }: Props) {
   const pathname = usePathname()
   const navRef = useRef<HTMLElement>(null)
+  const { requestNavigation } = useNavigationGuard()
 
   useEffect(() => {
     const vv = window.visualViewport
@@ -75,12 +77,16 @@ export function BottomNav({ avatarUrl, initial }: Props) {
           return (
             <li key={href} className="flex-1">
               <Link href={href}
+                onClick={(e) => {
+                  e.preventDefault()
+                  requestNavigation({ type: 'href', href })
+                }}
                 className="flex flex-col items-center gap-1 py-3 text-xs transition-colors"
                 style={{ color: active ? '#b35c44' : '#9ca3af' }}>
                 {isMypage && avatarUrl ? (
                   <div className="relative h-[22px] w-[22px] overflow-hidden rounded-full"
                     style={{ border: `1.5px solid ${active ? '#b35c44' : '#9ca3af'}` }}>
-                    <Image src={avatarUrl} alt="アバター" fill className="object-cover" />
+                    <Image src={avatarUrl} alt="アバター" fill sizes="22px" className="object-cover" />
                   </div>
                 ) : isMypage && initial ? (
                   <div className="flex h-[22px] w-[22px] items-center justify-center rounded-full text-[10px] font-bold"

@@ -18,7 +18,7 @@ export function LogoutButton() {
     <button
       onClick={handleLogout}
       className="flex flex-col items-center gap-1 rounded-xl p-2 flex-shrink-0"
-      style={{ color: '#9a8a7a' }}
+      style={{ color: '#5a5a5a' }}
     >
       <LogOut size={18} />
       <span className="text-[10px]">ログアウト</span>

@@ -13,11 +13,9 @@
 @layer base {
   html {
     -webkit-tap-highlight-color: transparent;
-    font-family: 'Yusei Magic', sans-serif;
   }
   body {
     @apply text-stone-900;
-    font-family: 'Yusei Magic', sans-serif;
     padding-top: 2rem;
   }
 

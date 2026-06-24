@@ -1,4 +1,5 @@
 import { BottomNav } from '@/components/layout/BottomNav'
+import { NavigationGuardProvider } from '@/lib/contexts/NavigationGuardContext'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function MainLayout({ children }: { children: React.ReactNode }) {
@@ -19,9 +20,11 @@ export default async function MainLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <div className="min-h-screen bg-stone-50" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom))' }}>
-      {children}
-      <BottomNav avatarUrl={avatarUrl} initial={initial} />
-    </div>
+    <NavigationGuardProvider>
+      <div className="min-h-screen bg-stone-50" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom))' }}>
+        {children}
+        <BottomNav avatarUrl={avatarUrl} initial={initial} />
+      </div>
+    </NavigationGuardProvider>
   )
 }

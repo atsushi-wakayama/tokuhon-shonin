@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
+import { parseLocationCoords } from '@/lib/utils/location'
 
 async function checkAdmin() {
   const supabase = await createClient()
@@ -24,7 +25,7 @@ export async function approveMonument(formData: FormData) {
 
   const { data: monument } = await supabase
     .from('monuments')
-    .select('submitted_by, image_urls')
+    .select('submitted_by, image_urls, location, submission_memo')
     .eq('id', id)
     .single()
 
@@ -32,14 +33,18 @@ export async function approveMonument(formData: FormData) {
 
   if (monument?.submitted_by) {
     const photoUrl = monument.image_urls?.[0] ?? null
-    await supabase.from('stamps').insert({
-      user_id: monument.submitted_by,
-      monument_id: id,
-      photo_url: photoUrl,
-      latitude: null,
-      longitude: null,
-    })
-    await supabase.from('monuments').update({ image_urls: [] }).eq('id', id)
+    if (photoUrl) {
+      const { latitude, longitude } = parseLocationCoords(monument.location)
+      await supabase.from('stamps').insert({
+        user_id: monument.submitted_by,
+        monument_id: id,
+        photo_url: photoUrl,
+        latitude,
+        longitude,
+        memo: monument.submission_memo ?? null,
+      })
+    }
+    await supabase.from('monuments').update({ image_urls: [], submission_memo: null }).eq('id', id)
   }
 
   revalidatePath('/admin')

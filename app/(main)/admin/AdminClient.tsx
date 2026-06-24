@@ -2,8 +2,14 @@
 
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
-import { Search, Edit, Check, X, Trash2, Plus } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { ArrowLeft, Search, Edit, Check, X, Trash2, Plus } from 'lucide-react'
 import { approveMonument, rejectMonument, deleteMonument } from './actions'
+
+const washibg = [
+  'repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(160,130,100,0.12) 19px, rgba(160,130,100,0.12) 20px)',
+  'repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(160,130,100,0.12) 19px, rgba(160,130,100,0.12) 20px)',
+].join(', ')
 
 type Monument = {
   id: string
@@ -35,6 +41,7 @@ const AREAS = [
   { id: 3, label: '近畿・中部' },
   { id: 2, label: '関東・東京' },
   { id: 4, label: '東北' },
+  { id: 5, label: 'その他' },
 ]
 
 function hasEmptyFields(m: Monument) {
@@ -52,17 +59,64 @@ export function AdminClient({
   monumentsError: boolean
   pendingError: boolean
 }) {
-  const [tab, setTab] = useState<'spots' | 'pending'>('spots')
-  const [query, setQuery] = useState('')
-  const [areaId, setAreaId] = useState<number | null>(null)
-  const [onlyEmpty, setOnlyEmpty] = useState(false)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const [tab, setTab] = useState<'spots' | 'pending'>(
+    searchParams.get('tab') === 'pending' ? 'pending' : 'spots'
+  )
+  const [query, setQuery] = useState(searchParams.get('q') ?? '')
+  const [areaId, setAreaId] = useState<number | null>(
+    searchParams.get('area') ? Number(searchParams.get('area')) : null
+  )
+  const [onlyEmpty, setOnlyEmpty] = useState(searchParams.get('empty') === '1')
+
+  function syncParams(next: {
+    tab?: 'spots' | 'pending'
+    q?: string
+    area?: number | null
+    empty?: boolean
+  }) {
+    const params = new URLSearchParams()
+    const t = next.tab ?? tab
+    const q = next.q ?? query
+    const area = next.area !== undefined ? next.area : areaId
+    const empty = next.empty ?? onlyEmpty
+
+    if (t === 'pending') params.set('tab', 'pending')
+    if (q) params.set('q', q)
+    if (area !== null) params.set('area', String(area))
+    if (empty) params.set('empty', '1')
+
+    router.replace(`/admin${params.toString() ? `?${params.toString()}` : ''}`)
+  }
+
+  function handleTabChange(t: 'spots' | 'pending') {
+    setTab(t)
+    syncParams({ tab: t })
+  }
+
+  function handleQueryChange(q: string) {
+    setQuery(q)
+    syncParams({ q })
+  }
+
+  function handleAreaChange(area: number | null) {
+    setAreaId(area)
+    syncParams({ area })
+  }
+
+  function handleOnlyEmptyChange(empty: boolean) {
+    setOnlyEmpty(empty)
+    syncParams({ empty })
+  }
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [isPendingDelete, startDeleteTransition] = useTransition()
 
   const filtered = allMonuments.filter((m) => {
     if (areaId !== null && m.area_id !== areaId) return false
-    if (query && !m.name.includes(query) && !m.prefecture.includes(query)) return false
+    if (query && !m.name.includes(query) && !(m.address ?? '').includes(query)) return false
     if (onlyEmpty && !hasEmptyFields(m)) return false
     return true
   })
@@ -79,10 +133,10 @@ export function AdminClient({
             <p className="mb-2 text-base font-medium" style={{ color: '#3a2a1a' }}>
               このスポットを削除しますか？
             </p>
-            <p className="mb-5 text-sm" style={{ color: '#b35c44' }}>
+            <p className="mb-5 text-sm font-medium" style={{ color: '#b35c44' }}>
               「{deleteTarget.name}」
             </p>
-            <p className="mb-5 text-xs" style={{ color: '#9a8a7a' }}>
+            <p className="mb-5 text-xs" style={{ color: '#5a5a5a' }}>
               この操作は取り消せません。
             </p>
             {deleteError && (
@@ -127,22 +181,21 @@ export function AdminClient({
 
     <div
       className="min-h-screen"
-      style={{
-        backgroundImage: 'url(/bg-pattern.png)',
-        backgroundSize: '320px',
-        backgroundRepeat: 'repeat',
-        backgroundColor: '#f5f0eb',
-      }}
+      style={{ backgroundColor: '#f5f0eb' }}
     >
       <div className="mx-auto max-w-md">
-        {/* ヘッダー */}
-        <div className="px-4 pt-5 pb-4" style={{ backgroundColor: '#faf7f0' }}>
-          <h1 className="mb-4 text-xl font-medium" style={{ color: '#3a2a1a' }}>
+        {/* ヘッダー：和紙テクスチャ */}
+        <div className="px-4 pb-5 pt-4" style={{ backgroundColor: '#faf7f0', backgroundImage: washibg }}>
+          <Link href="/mypage" className="inline-flex items-center justify-center rounded-full p-2 shadow-sm"
+            style={{ backgroundColor: 'rgba(255,255,255,0.85)', border: '1px solid #d4c5b0' }}>
+            <ArrowLeft size={18} style={{ color: '#4a3a2a' }} />
+          </Link>
+          <h1 className="mt-3 mb-4 text-2xl font-medium leading-snug" style={{ color: '#3a2a1a' }}>
             管理ページ
           </h1>
           <div className="flex gap-2">
             <button
-              onClick={() => setTab('spots')}
+              onClick={() => handleTabChange('spots')}
               className="flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors"
               style={
                 tab === 'spots'
@@ -153,7 +206,7 @@ export function AdminClient({
               スポット管理
             </button>
             <button
-              onClick={() => setTab('pending')}
+              onClick={() => handleTabChange('pending')}
               className="relative flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors"
               style={
                 tab === 'pending'
@@ -164,7 +217,7 @@ export function AdminClient({
               承認待ち
               {pendingMonuments.length > 0 && (
                 <span
-                  className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-xs font-bold"
+                  className="absolute -right-1.5 -top-1.5 flex h-6 min-w-[24px] items-center justify-center rounded-full px-1 text-sm font-bold"
                   style={{ backgroundColor: '#e04040', color: '#fff' }}
                 >
                   {pendingMonuments.length}
@@ -186,9 +239,9 @@ export function AdminClient({
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={16} />
                 <input
                   type="search"
-                  placeholder="名称・都道府県で検索..."
+                  placeholder="名称・所在地で検索..."
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => handleQueryChange(e.target.value)}
                   className="w-full rounded-xl py-3 pl-9 pr-4 text-sm outline-none focus:ring-1 focus:ring-[#b35c44]"
                   style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: '1px solid #d4c5b0' }}
                 />
@@ -198,7 +251,7 @@ export function AdminClient({
                 {AREAS.map((a) => (
                   <button
                     key={String(a.id)}
-                    onClick={() => setAreaId(a.id)}
+                    onClick={() => handleAreaChange(a.id)}
                     className="flex-shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
                     style={
                       areaId === a.id
@@ -211,20 +264,20 @@ export function AdminClient({
                 ))}
               </div>
 
-              <label className="mb-4 inline-flex cursor-pointer items-center gap-2" style={{ backgroundColor: 'rgba(255,255,255,0.85)', padding: '6px 10px', borderRadius: '8px' }}>
+              <label className="mb-4 inline-flex cursor-pointer items-center gap-2">
                 <input
                   type="checkbox"
                   checked={onlyEmpty}
-                  onChange={(e) => setOnlyEmpty(e.target.checked)}
+                  onChange={(e) => handleOnlyEmptyChange(e.target.checked)}
                   className="rounded"
                 />
-                <span className="text-sm" style={{ color: '#423629' }}>
+                <span className="text-sm font-medium" style={{ color: '#423629' }}>
                   未入力項目がある碑だけ表示
                 </span>
               </label>
 
               <div className="mb-3 flex items-center justify-between">
-                <p className="text-sm" style={{ color: '#5a5a5a', backgroundColor: 'rgba(255,255,255,0.85)', padding: '2px 8px', borderRadius: '6px' }}>
+                <p className="text-sm font-medium" style={{ color: '#5a5a5a' }}>
                   スポット {filtered.length}件
                 </p>
                 <Link
@@ -240,7 +293,7 @@ export function AdminClient({
               <div className="space-y-2 pb-8">
                 {filtered.length === 0 && !monumentsError && (
                   <div className="rounded-xl py-12 text-center" style={{ backgroundColor: 'rgba(255,255,255,0.9)' }}>
-                    <p className="text-sm" style={{ color: '#9a8a7a' }}>該当するスポットがありません</p>
+                    <p className="text-sm" style={{ color: '#5a5a5a' }}>該当するスポットがありません</p>
                   </div>
                 )}
                 {filtered.map((m) => (
@@ -253,8 +306,8 @@ export function AdminClient({
                       <p className="truncate text-sm font-medium" style={{ color: '#3a2a1a' }}>
                         {m.name}
                       </p>
-                      <p className="mt-0.5 text-xs" style={{ color: '#9a8a7a' }}>
-                        {m.prefecture}
+                      <p className="mt-0.5 text-xs" style={{ color: '#5a5a5a' }}>
+                        {m.address ?? m.prefecture}
                       </p>
                       {m.status === 'pending' && (
                         <span
@@ -273,7 +326,7 @@ export function AdminClient({
                     <div className="ml-3 flex flex-shrink-0 gap-2">
                       <Link
                         href={`/admin/monuments/${m.id}/edit`}
-                        className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs"
+                        className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium"
                         style={{ backgroundColor: '#fdf0e8', color: '#b35c44', border: '1px solid #e8c8b0' }}
                       >
                         <Edit size={12} />
@@ -282,7 +335,7 @@ export function AdminClient({
                       <button
                         type="button"
                         onClick={() => setDeleteTarget({ id: m.id, name: m.name })}
-                        className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs"
+                        className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium"
                         style={{ backgroundColor: '#fdf0e8', color: '#c0392b', border: '1px solid #e8c8b0' }}
                       >
                         <Trash2 size={12} />
@@ -302,7 +355,7 @@ export function AdminClient({
               )}
               {!pendingError && pendingMonuments.length === 0 ? (
                 <div className="rounded-xl py-12 text-center" style={{ backgroundColor: 'rgba(255,255,255,0.9)' }}>
-                  <p className="text-sm" style={{ color: '#9a8a7a' }}>
+                  <p className="text-sm" style={{ color: '#5a5a5a' }}>
                     承認待ちの申請はありません
                   </p>
                 </div>
@@ -316,7 +369,7 @@ export function AdminClient({
                     <p className="mb-1 text-sm font-medium" style={{ color: '#3a2a1a' }}>
                       {m.name}
                     </p>
-                    <p className="mb-1 text-xs" style={{ color: '#9a8a7a' }}>
+                    <p className="mb-1 text-xs" style={{ color: '#5a5a5a' }}>
                       {m.prefecture} {m.address ?? ''}
                     </p>
                     {m.description && (

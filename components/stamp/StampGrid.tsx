@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import Image from 'next/image'
 import type { StampWithMonument } from '@/lib/types/database.types'
 
@@ -18,26 +19,24 @@ export function StampGrid({ stamps }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+    <div className="space-y-3">
       {stamps.map((stamp) => (
-        <div key={stamp.id} className="overflow-hidden rounded-xl shadow-sm">
-          <div className="relative aspect-square bg-stone-100">
-            <Image
-              src={stamp.photo_url}
-              alt={stamp.monument?.name ?? ''}
-              fill
-              className="object-cover"
-            />
+        <Link key={stamp.id} href={`/mypage/stamps/${stamp.id}`}>
+          <div
+            className="flex items-center gap-3 rounded-xl p-3 shadow-sm transition-shadow hover:shadow-md active:scale-[0.99]"
+            style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: '1px solid #d4c5b0' }}
+          >
+            <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-stone-100">
+              <Image src={stamp.photo_url} alt={stamp.monument?.name ?? ''} fill sizes="64px" className="object-cover" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate" style={{ color: '#423629' }}>{stamp.monument?.name}</p>
+              <p className="mt-1 text-xs" style={{ color: '#5a5a5a' }}>
+                {new Date(stamp.checked_in_at).toLocaleDateString('ja-JP')}
+              </p>
+            </div>
           </div>
-          <div className="bg-white px-2 py-2">
-            <p className="truncate text-xs font-medium text-stone-800">
-              {stamp.monument?.name}
-            </p>
-            <p className="text-xs text-stone-400">
-              {new Date(stamp.checked_in_at).toLocaleDateString('ja-JP')}
-            </p>
-          </div>
-        </div>
+        </Link>
       ))}
     </div>
   )

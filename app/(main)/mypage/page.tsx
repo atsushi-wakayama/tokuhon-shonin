@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { Trophy } from 'lucide-react'
+import { Trophy, Album } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { StampGrid } from '@/components/stamp/StampGrid'
@@ -17,7 +17,7 @@ export default async function MyPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen" style={{ backgroundImage: 'url(/bg-pattern.png)', backgroundSize: '320px', backgroundRepeat: 'repeat', backgroundColor: '#f5f0eb' }}>
+      <div className="min-h-screen" style={{ backgroundColor: '#f5f0eb' }}>
         <div className="mx-auto max-w-md px-4 pt-6">
           <div className="mb-6 rounded-2xl p-5" style={{ backgroundColor: '#faf7f0', backgroundImage: washibg }}>
             <div className="flex items-center gap-3">
@@ -30,7 +30,7 @@ export default async function MyPage() {
           </div>
           <div className="mt-6 rounded-xl p-4 text-center" style={{ backgroundColor: '#fdf0e8' }}>
             <p className="mb-3 text-sm" style={{ color: '#5a5a5a' }}>ログインするとスタンプが記録されます</p>
-            <Link href="/login" className="inline-block rounded-xl px-6 py-2.5 text-sm text-white" style={{ backgroundColor: '#b35c44' }}>
+            <Link href="/login" className="inline-block rounded-xl px-6 py-2.5 text-sm font-medium text-white" style={{ backgroundColor: '#b35c44' }}>
               ログイン / 新規登録
             </Link>
           </div>
@@ -59,7 +59,7 @@ export default async function MyPage() {
   const displayName = profile?.nickname ?? user.email ?? ''
 
   return (
-    <div className="min-h-screen" style={{ backgroundImage: 'url(/bg-pattern.png)', backgroundSize: '320px', backgroundRepeat: 'repeat', backgroundColor: '#f5f0eb' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#f5f0eb' }}>
       <div className="mx-auto max-w-md">
 
         {/* 和紙テクスチャヘッダー */}
@@ -91,19 +91,19 @@ export default async function MyPage() {
             <div className="flex-1 rounded-xl p-3 text-center"
               style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: '1px solid #e8ddd0' }}>
               <p className="text-2xl font-bold" style={{ color: '#3a2a1a' }}>{stampCount}</p>
-              <p className="mt-0.5 text-[10px]" style={{ color: '#9a8a7a' }}>スタンプ</p>
+              <p className="mt-0.5 text-xs" style={{ color: '#9a8a7a' }}>スタンプ</p>
             </div>
             {/* 称号獲得数 */}
             <div className="flex-1 rounded-xl p-3 text-center"
               style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: '1px solid #e8ddd0' }}>
               <p className="text-2xl font-bold" style={{ color: '#3a2a1a' }}>{badgeCount}</p>
-              <p className="mt-0.5 text-[10px]" style={{ color: '#9a8a7a' }}>称号</p>
+              <p className="mt-0.5 text-xs" style={{ color: '#9a8a7a' }}>称号</p>
             </div>
             {/* 達成率 */}
             <div className="flex-1 rounded-xl p-3 text-center"
               style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: '1px solid #e8ddd0' }}>
               <p className="text-2xl font-bold" style={{ color: '#3a2a1a' }}>{rate}%</p>
-              <p className="mt-0.5 text-[10px]" style={{ color: '#9a8a7a' }}>達成率</p>
+              <p className="mt-0.5 text-xs" style={{ color: '#9a8a7a' }}>達成率</p>
             </div>
           </div>
         </div>
@@ -113,11 +113,11 @@ export default async function MyPage() {
           {/* 称号 */}
           <div className="mb-6">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-lg" style={{ color: '#423629', backgroundColor: 'rgba(255,255,255,0.8)' }}>
+              <h2 className="flex items-center gap-1.5 px-3 py-1.5 text-lg font-medium" style={{ color: '#423629' }}>
                 <Trophy size={20} style={{ color: '#b35c44' }} /> 称号
               </h2>
-              <Link href="/mypage/badges" className="rounded-xl px-3 py-1.5 text-sm"
-                style={{ color: '#b35c44', backgroundColor: 'rgba(255,255,255,0.8)' }}>すべて見る</Link>
+              <Link href="/mypage/badges" className="rounded-xl px-3 py-1.5 text-sm underline"
+                style={{ color: '#b35c44' }}>すべて見る</Link>
             </div>
             {userBadges.length > 0 ? (
               <div className="flex flex-col gap-2">
@@ -137,7 +137,9 @@ export default async function MyPage() {
 
 
           {/* スタンプ帳 */}
-          <h2 className="mb-3 inline-block rounded-xl px-3 py-1.5 text-lg" style={{ color: '#423629', backgroundColor: 'rgba(255,255,255,0.8)' }}>スタンプ帳</h2>
+          <h2 className="mb-3 flex items-center gap-1.5 px-3 py-1.5 text-lg font-medium" style={{ color: '#423629' }}>
+            <Album size={20} style={{ color: '#b35c44' }} /> スタンプ帳
+          </h2>
           <StampGrid stamps={(stamps as any) ?? []} />
 
           <div className="pb-8" />

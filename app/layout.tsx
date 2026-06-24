@@ -1,5 +1,12 @@
 import type { Metadata, Viewport } from 'next'
+import { Zen_Kaku_Gothic_New } from 'next/font/google'
 import './globals.css'
+
+const zenKakuGothicNew = Zen_Kaku_Gothic_New({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: '徳本上人 名号碑めぐり',
@@ -26,7 +33,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
-      <body className="bg-stone-50 antialiased">{children}</body>
+      <body className={`${zenKakuGothicNew.className} bg-stone-50 antialiased`}>{children}</body>
     </html>
   )
 }

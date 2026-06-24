@@ -19,20 +19,9 @@ export default async function SubmitPage({
   return (
     <div
       className="min-h-screen"
-      style={{
-        backgroundImage: 'url(/bg-pattern.png)',
-        backgroundSize: '320px',
-        backgroundRepeat: 'repeat',
-        backgroundColor: '#f5f0eb',
-      }}
+      style={{ backgroundColor: '#f5f0eb' }}
     >
-      <div className="mx-auto max-w-md px-4 pt-6 pb-24">
-        <h1
-          className="mb-6 inline-block rounded-xl px-4 py-2 text-xl"
-          style={{ color: '#423629', backgroundColor: 'rgba(255,255,255,0.8)' }}
-        >
-          新しいスポットを申請
-        </h1>
+      <div className="mx-auto max-w-md pb-24">
         <SubmitForm backPath={backPath} />
       </div>
     </div>

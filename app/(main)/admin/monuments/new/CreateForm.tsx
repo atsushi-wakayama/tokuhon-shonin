@@ -11,8 +11,13 @@ const PREFECTURES = [
   '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県',
   '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県',
 ]
-import { useRouter } from 'next/navigation'
-import { ChevronLeft, MapPin } from 'lucide-react'
+import { ArrowLeft, MapPin, X } from 'lucide-react'
+import { useNavigationGuard } from '@/lib/contexts/NavigationGuardContext'
+
+const washibg = [
+  'repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(160,130,100,0.12) 19px, rgba(160,130,100,0.12) 20px)',
+  'repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(160,130,100,0.12) 19px, rgba(160,130,100,0.12) 20px)',
+].join(', ')
 import { createMonument } from './actions'
 
 type Area = {
@@ -23,7 +28,7 @@ type Area = {
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div>
-      <label className="mb-1.5 inline-block text-sm font-medium" style={{ color: '#423629', backgroundColor: 'rgba(255,255,255,0.85)', padding: '1px 6px', borderRadius: '4px' }}>
+      <label className="mb-1.5 inline-block text-sm font-medium" style={{ color: '#423629' }}>
         {label}{required && <span style={{ color: '#ef4444' }}> *</span>}
       </label>
       {children}
@@ -32,58 +37,76 @@ function Field({ label, required, children }: { label: string; required?: boolea
 }
 
 export function CreateForm({ areas }: { areas: Area[] }) {
-  const router = useRouter()
   const [state, formAction, isPending] = useActionState(createMonument, null)
   const [isDirty, setIsDirty] = useState(false)
-  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
+  const { setBlocked, requestNavigation, pendingNav, confirmNavigation, cancelNavigation } = useNavigationGuard()
+  useEffect(() => {
+    setBlocked(isDirty)
+    return () => setBlocked(false)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDirty])
   const [latitude, setLatitude] = useState<number | null>(null)
   const [longitude, setLongitude] = useState<number | null>(null)
   const [showMapPicker, setShowMapPicker] = useState(false)
+  const [pendingLat, setPendingLat] = useState<number | null>(null)
+  const [pendingLng, setPendingLng] = useState<number | null>(null)
 
   const mapPickerRef = useRef<HTMLDivElement>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapInstanceRef = useRef<any>(null)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const markerRef = useRef<any>(null)
 
+  // 全画面マップピッカーの初期化（中央固定ピン方式）
   useEffect(() => {
-    if (!showMapPicker || !mapPickerRef.current || mapInstanceRef.current) return
+    if (!showMapPicker || !mapPickerRef.current) return
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
     if (!apiKey || apiKey === 'YOUR_GOOGLE_MAPS_API_KEY') return
+
+    const initLat = latitude ?? 36.2
+    const initLng = longitude ?? 138.25
+    const initZoom = latitude !== null ? 15 : 6
+    setPendingLat(initLat)
+    setPendingLng(initLng)
 
     import('@googlemaps/js-api-loader').then(({ Loader }) => {
       const loader = new Loader({ apiKey, version: 'weekly', language: 'ja', region: 'JP' })
       loader.load().then(async () => {
         const { Map } = await google.maps.importLibrary('maps') as google.maps.MapsLibrary
-        const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary('marker') as google.maps.MarkerLibrary
 
         const map = new Map(mapPickerRef.current!, {
-          center: { lat: 36.2, lng: 138.25 },
-          zoom: 6,
+          center: { lat: initLat, lng: initLng },
+          zoom: initZoom,
           mapId: 'DEMO_MAP_ID',
           disableDefaultUI: true,
           zoomControl: true,
+          gestureHandling: 'greedy',
         })
         mapInstanceRef.current = map
 
-        map.addListener('click', (e: google.maps.MapMouseEvent) => {
-          if (!e.latLng) return
-          const lat = Math.round(e.latLng.lat() * 10000) / 10000
-          const lng = Math.round(e.latLng.lng() * 10000) / 10000
-          setLatitude(lat)
-          setLongitude(lng)
-          setIsDirty(true)
-          if (markerRef.current) {
-            markerRef.current.position = { lat, lng }
-          } else {
-            const pin = new PinElement({ background: '#b35c44', borderColor: '#8c3d2e', glyphColor: '#fff' })
-            markerRef.current = new AdvancedMarkerElement({ map, position: { lat, lng }, content: pin.element })
-          }
+        map.addListener('center_changed', () => {
+          const c = map.getCenter()
+          if (!c) return
+          setPendingLat(Math.round(c.lat() * 10000) / 10000)
+          setPendingLng(Math.round(c.lng() * 10000) / 10000)
         })
       })
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showMapPicker])
+
+  function confirmMapPosition() {
+    if (pendingLat !== null && pendingLng !== null) {
+      setLatitude(pendingLat)
+      setLongitude(pendingLng)
+      setIsDirty(true)
+    }
+    mapInstanceRef.current = null
+    setShowMapPicker(false)
+  }
+
+  function cancelMapPicker() {
+    mapInstanceRef.current = null
+    setShowMapPicker(false)
+  }
 
   const handleFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
     const fd = new FormData(e.currentTarget)
@@ -101,39 +124,30 @@ export function CreateForm({ areas }: { areas: Area[] }) {
   }
 
   const handleBack = () => {
-    if (isDirty) {
-      setShowUnsavedDialog(true)
-    } else {
-      router.push('/admin')
-    }
+    requestNavigation({ type: 'href', href: '/admin' })
   }
 
   return (
     <div
       className="min-h-screen"
-      style={{
-        backgroundImage: 'url(/bg-pattern.png)',
-        backgroundSize: '320px',
-        backgroundRepeat: 'repeat',
-        backgroundColor: '#f5f0eb',
-      }}
+      style={{ backgroundColor: '#f5f0eb' }}
     >
-      {showUnsavedDialog && (
+      {pendingNav && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
           <div className="mx-4 w-full max-w-sm rounded-2xl bg-white px-6 py-6 text-center shadow-lg">
             <p className="mb-5 text-base font-medium" style={{ color: '#3a2a1a' }}>
-              入力内容が保存されていません。破棄して戻りますか？
+              入力内容が保存されていません。<br />破棄して戻りますか？
             </p>
             <div className="flex gap-3">
               <button
-                onClick={() => setShowUnsavedDialog(false)}
+                onClick={cancelNavigation}
                 className="flex-1 rounded-xl py-2.5 text-sm font-medium"
                 style={{ backgroundColor: 'rgba(255,255,255,0.9)', color: '#423629', border: '1px solid #d4c5b0' }}
               >
                 入力に戻る
               </button>
               <button
-                onClick={() => router.push('/admin')}
+                onClick={confirmNavigation}
                 className="flex-1 rounded-xl py-2.5 text-sm font-medium text-white"
                 style={{ backgroundColor: '#b35c44' }}
               >
@@ -145,16 +159,15 @@ export function CreateForm({ areas }: { areas: Area[] }) {
       )}
 
       <div className="mx-auto max-w-md">
-        <div className="px-4 pt-5 pb-4" style={{ backgroundColor: '#faf7f0' }}>
+        <div className="px-4 pb-5 pt-4" style={{ backgroundColor: '#faf7f0', backgroundImage: washibg }}>
           <button
             onClick={handleBack}
-            className="mb-3 flex items-center gap-1 text-sm"
-            style={{ color: '#b35c44' }}
+            className="mb-3 inline-flex items-center justify-center rounded-full p-2 shadow-sm"
+            style={{ backgroundColor: 'rgba(255,255,255,0.85)', border: '1px solid #d4c5b0' }}
           >
-            <ChevronLeft size={16} />
-            管理ページに戻る
+            <ArrowLeft size={18} style={{ color: '#4a3a2a' }} />
           </button>
-          <h1 className="text-lg font-medium" style={{ color: '#3a2a1a' }}>
+          <h1 className="text-2xl font-medium leading-snug" style={{ color: '#3a2a1a' }}>
             スポット新規追加
           </h1>
         </div>
@@ -206,39 +219,20 @@ export function CreateForm({ areas }: { areas: Area[] }) {
           <Field label="位置情報">
             {latitude !== null && <input type="hidden" name="latitude" value={latitude} readOnly />}
             {longitude !== null && <input type="hidden" name="longitude" value={longitude} readOnly />}
-            {latitude !== null && longitude !== null && !showMapPicker && (
-              <p className="mb-2 inline-flex items-center gap-1 text-sm" style={{ color: '#2d7a3a', backgroundColor: 'rgba(255,255,255,0.85)', padding: '2px 6px', borderRadius: '4px' }}>
+            {latitude !== null && longitude !== null && (
+              <p className="mb-2 mt-2 flex items-center gap-1 text-sm" style={{ color: '#2d7a3a' }}>
                 <MapPin size={14} />
-                位置指定済み（{latitude.toFixed(4)}, {longitude.toFixed(4)}）
+                位置指定済（{latitude.toFixed(4)}, {longitude.toFixed(4)}）
               </p>
             )}
-            {!showMapPicker && (
-              <button
-                type="button"
-                onClick={() => setShowMapPicker(true)}
-                className="text-sm underline"
-                style={{ color: '#b35c44', backgroundColor: 'rgba(255,255,255,0.85)', padding: '2px 6px', borderRadius: '4px' }}
-              >
-                地図上で位置を指定する
-              </button>
-            )}
-            {showMapPicker && (
-              <div>
-                <p className="mb-2 inline-block text-sm" style={{ color: '#5a5a5a', backgroundColor: 'rgba(255,255,255,0.85)', padding: '2px 6px', borderRadius: '4px' }}>地図をタップして位置を指定してください</p>
-                <div
-                  ref={mapPickerRef}
-                  className="h-52 w-full overflow-hidden rounded-xl"
-                  style={{ border: '2px dashed #b35c44' }}
-                />
-                {latitude !== null && longitude !== null ? (
-                  <p className="mt-1.5 inline-block text-sm" style={{ color: '#2d7a3a', backgroundColor: 'rgba(255,255,255,0.85)', padding: '2px 6px', borderRadius: '4px' }}>
-                    選択済み（{latitude.toFixed(4)}, {longitude.toFixed(4)}）
-                  </p>
-                ) : (
-                  <p className="mt-1.5 inline-block text-sm" style={{ color: '#5a5a5a', backgroundColor: 'rgba(255,255,255,0.85)', padding: '2px 6px', borderRadius: '4px' }}>地図をタップすると位置が決まります</p>
-                )}
-              </div>
-            )}
+            <button
+              type="button"
+              onClick={() => setShowMapPicker(true)}
+              className="block text-xs underline"
+              style={{ color: '#b35c44' }}
+            >
+              {latitude !== null ? '地図上で位置を変更する' : '地図上で位置を指定する'}
+            </button>
           </Field>
 
           <Field label="エリア">
@@ -257,7 +251,7 @@ export function CreateForm({ areas }: { areas: Area[] }) {
             </select>
           </Field>
 
-          <Field label="解説テキスト">
+          <Field label="解説">
             <textarea
               name="description"
               rows={4}
@@ -275,7 +269,7 @@ export function CreateForm({ areas }: { areas: Area[] }) {
             />
           </Field>
 
-          <Field label="現地確認済み">
+          <Field label="現地確認">
             <select
               name="is_verified"
               defaultValue="false"
@@ -283,7 +277,7 @@ export function CreateForm({ areas }: { areas: Area[] }) {
               style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: '1px solid #d4c5b0' }}
             >
               <option value="false">未確認</option>
-              <option value="true">確認済み</option>
+              <option value="true">確認済</option>
             </select>
           </Field>
 
@@ -297,6 +291,53 @@ export function CreateForm({ areas }: { areas: Area[] }) {
           </button>
         </form>
       </div>
+
+      {/* 全画面マップピッカー */}
+      {showMapPicker && (
+        <div className="fixed inset-0 z-[60] bg-white">
+          <div ref={mapPickerRef} className="absolute inset-0" />
+
+          {/* 中央固定ピン */}
+          <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full">
+            <MapPin size={40} style={{ color: '#b35c44' }} fill="#b35c44" />
+          </div>
+
+          {/* 閉じるボタン */}
+          <button
+            type="button"
+            onClick={cancelMapPicker}
+            className="absolute right-4 top-4 rounded-full bg-white p-2 shadow-md"
+            style={{ color: '#423629' }}
+          >
+            <X size={20} />
+          </button>
+
+          {/* 案内・決定ボタン */}
+          <div className="absolute inset-x-0 bottom-0 p-4">
+            <div
+              className="rounded-2xl p-4 text-center shadow-lg"
+              style={{ backgroundColor: 'rgba(255,255,255,0.95)' }}
+            >
+              <p className="mb-3 text-sm" style={{ color: '#5a5a5a' }}>
+                地図を動かして、ピンの位置にスポットを指定してください
+              </p>
+              {pendingLat !== null && pendingLng !== null && (
+                <p className="mb-3 text-xs" style={{ color: '#2d7a3a' }}>
+                  選択中（{pendingLat.toFixed(4)}, {pendingLng.toFixed(4)}）
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={confirmMapPosition}
+                className="w-full rounded-xl py-3 text-base font-medium text-white"
+                style={{ backgroundColor: '#b35c44' }}
+              >
+                ここに決定
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

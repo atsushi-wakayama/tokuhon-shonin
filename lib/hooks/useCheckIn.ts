@@ -17,12 +17,14 @@ export function useCheckIn() {
     userLng,
     photoFile,
     userId,
+    memo,
   }: {
     monument: Monument
     userLat: number
     userLng: number
     photoFile: File
     userId: string
+    memo?: string | null
   }) {
     setStatus('uploading')
     setErrorMessage(null)
@@ -59,6 +61,7 @@ export function useCheckIn() {
       photo_url: urlData.publicUrl,
       latitude: userLat,
       longitude: userLng,
+      memo: memo ?? null,
     } as any)
 
     if (stampError) {

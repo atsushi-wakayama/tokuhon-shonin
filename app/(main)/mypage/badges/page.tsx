@@ -8,6 +8,11 @@ const BADGE_ICONS: ReactNode[] = [1, 2, 3, 4, 5, 6, 7].map((n) => (
   <Image key={n} src={`/icons/icon_0${n}.png`} alt={`称号${n}`} width={88} height={88} className="object-contain" />
 ))
 
+const washibg = [
+  'repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(160,130,100,0.12) 19px, rgba(160,130,100,0.12) 20px)',
+  'repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(160,130,100,0.12) 19px, rgba(160,130,100,0.12) 20px)',
+].join(', ')
+
 export default async function BadgesPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -23,26 +28,45 @@ export default async function BadgesPage() {
   const badges = (allBadges ?? []) as any[]
   const earnedCount = badges.filter((b) => earnedMap.has(b.id)).length
 
-  return (
-    <div className="min-h-screen" style={{ backgroundImage: 'url(/bg-pattern.png)', backgroundSize: '320px', backgroundRepeat: 'repeat', backgroundColor: '#f5f0eb' }}>
-      <div className="mx-auto max-w-md px-4 pt-6 pb-16">
+  const progressRadius = 26
+  const progressCircumference = 2 * Math.PI * progressRadius
+  const progressRatio = badges.length ? earnedCount / badges.length : 0
+  const progressOffset = progressCircumference * (1 - progressRatio)
 
-        {/* ヘッダー */}
-        <div className="mb-3 flex items-center gap-3">
-          <Link href="/mypage" className="inline-flex items-center justify-center rounded-full p-2 shadow-sm flex-shrink-0"
+  return (
+    <div className="min-h-screen" style={{ backgroundColor: '#f5f0eb' }}>
+      <div className="mx-auto max-w-md pb-16">
+
+        {/* ヘッダー：和紙テクスチャ */}
+        <div className="relative px-4 pb-5 pt-4" style={{ backgroundColor: '#faf7f0', backgroundImage: washibg }}>
+          <Link href="/mypage" className="inline-flex items-center justify-center rounded-full p-2 shadow-sm"
             style={{ backgroundColor: 'rgba(255,255,255,0.85)', border: '1px solid #d4c5b0' }}>
             <ArrowLeft size={18} style={{ color: '#4a3a2a' }} />
           </Link>
-          <h1 className="inline-block rounded-xl px-4 py-2 text-xl" style={{ color: '#423629', backgroundColor: 'rgba(255,255,255,0.8)' }}>称号一覧</h1>
+
+          {/* 獲得数ドーナツ */}
+          <div className="absolute right-4 top-4 flex flex-shrink-0 flex-col items-center gap-0.5">
+            <p className="text-xs font-medium" style={{ color: '#423629' }}>獲得した称号</p>
+            <div className="relative" style={{ width: 84, height: 84 }}>
+              <svg width="84" height="84" viewBox="0 0 84 84">
+                <circle cx="42" cy="42" r={progressRadius} fill="none" stroke="#e8ddd0" strokeWidth="8" />
+                <circle cx="42" cy="42" r={progressRadius} fill="none" stroke="#C0392B" strokeWidth="8"
+                  strokeLinecap="round" strokeDasharray={progressCircumference}
+                  strokeDashoffset={progressOffset} transform="rotate(-90 42 42)" />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-2xl font-bold leading-none" style={{ color: '#C0392B' }}>{earnedCount}</span>
+                <span className="text-sm leading-none" style={{ color: '#8B4513' }}>／{badges.length}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-3 flex items-baseline gap-3">
+            <h1 className="text-2xl font-medium leading-snug" style={{ color: '#4a3a2a' }}>称号一覧</h1>
+          </div>
         </div>
 
-        {/* カウンター */}
-        <div className="mb-6 inline-flex items-baseline gap-1.5 rounded-xl px-4 py-2" style={{ backgroundColor: 'rgba(255,255,255,0.8)' }}>
-          <span className="text-3xl font-bold" style={{ color: '#C0392B' }}>{earnedCount}</span>
-          <span className="text-base" style={{ color: '#8B4513' }}>／</span>
-          <span className="text-lg" style={{ color: '#8B4513' }}>{badges.length}</span>
-          <span className="ml-1 text-sm" style={{ color: '#8B4513' }}>獲得した称号</span>
-        </div>
+        <div className="px-4 pt-6">
 
         {/* 出発 */}
         <div className="mb-1 flex justify-center">
@@ -73,8 +97,8 @@ export default async function BadgesPage() {
                     <div className="flex h-[88px] w-[88px] items-center justify-center">
                       {icon}
                     </div>
-                    <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold text-white"
-                      style={{ backgroundColor: earned ? '#C0392B' : '#c0b0a0' }}>
+                    <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white"
+                      style={{ backgroundColor: earned ? '#8B4513' : '#c0b0a0' }}>
                       {index + 1}
                     </span>
                   </div>
@@ -85,11 +109,11 @@ export default async function BadgesPage() {
                       backgroundColor: earned ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.5)',
                       border: `1px solid ${earned ? '#e8c5b0' : '#e0d8d0'}`,
                     }}>
-                    <p className="text-[10px] mb-0.5" style={{ color: '#8B4513' }}>第{index + 1}番</p>
+                    <p className="text-xs mb-0.5" style={{ color: '#8B4513' }}>第{index + 1}番</p>
                     <p className="text-sm font-medium leading-snug" style={{ color: '#423629' }}>{badge.name}</p>
                     <p className="text-xs mt-0.5 leading-relaxed" style={{ color: '#5a5a5a' }}>{badge.description}</p>
                     {earned && earnedAt && (
-                      <p className="text-[10px] mt-1.5" style={{ color: '#C0392B' }}>
+                      <p className="text-xs mt-1.5" style={{ color: '#C0392B' }}>
                         授与 {new Date(earnedAt).toLocaleDateString('ja-JP')}
                       </p>
                     )}
@@ -129,6 +153,7 @@ export default async function BadgesPage() {
             </span>
           </div>
         )}
+        </div>
       </div>
     </div>
   )

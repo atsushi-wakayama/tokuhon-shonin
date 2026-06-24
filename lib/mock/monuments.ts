@@ -16,6 +16,9 @@ export const MOCK_MONUMENTS: MonumentWithArea[] = [
     is_verified: true,
     status: 'approved' as const,
     submitted_by: null,
+    admin_info: null,
+    admin_info_provided_by: null,
+    admin_info_provided_at: null,
     created_at: '2024-01-01T00:00:00Z',
   },
   {
@@ -33,6 +36,9 @@ export const MOCK_MONUMENTS: MonumentWithArea[] = [
     is_verified: true,
     status: 'approved' as const,
     submitted_by: null,
+    admin_info: null,
+    admin_info_provided_by: null,
+    admin_info_provided_at: null,
     created_at: '2024-01-01T00:00:00Z',
   },
   {
@@ -50,6 +56,9 @@ export const MOCK_MONUMENTS: MonumentWithArea[] = [
     is_verified: true,
     status: 'approved' as const,
     submitted_by: null,
+    admin_info: null,
+    admin_info_provided_by: null,
+    admin_info_provided_at: null,
     created_at: '2024-01-01T00:00:00Z',
   },
   {
@@ -67,6 +76,9 @@ export const MOCK_MONUMENTS: MonumentWithArea[] = [
     is_verified: true,
     status: 'approved' as const,
     submitted_by: null,
+    admin_info: null,
+    admin_info_provided_by: null,
+    admin_info_provided_at: null,
     created_at: '2024-01-01T00:00:00Z',
   },
   {
@@ -84,6 +96,9 @@ export const MOCK_MONUMENTS: MonumentWithArea[] = [
     is_verified: true,
     status: 'approved' as const,
     submitted_by: null,
+    admin_info: null,
+    admin_info_provided_by: null,
+    admin_info_provided_at: null,
     created_at: '2024-01-01T00:00:00Z',
   },
 ]

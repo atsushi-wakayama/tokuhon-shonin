@@ -30,6 +30,9 @@ export interface Database {
           is_verified: boolean
           status: 'approved' | 'pending' | 'rejected'
           submitted_by: string | null
+          admin_info: string | null
+          admin_info_provided_by: string | null
+          admin_info_provided_at: string | null
           created_at: string
         }
         Insert: Omit<Database['public']['Tables']['monuments']['Row'], 'id' | 'created_at'>
@@ -56,6 +59,7 @@ export interface Database {
           photo_url: string
           latitude: number | null
           longitude: number | null
+          memo: string | null
           checked_in_at: string
         }
         Insert: Omit<Database['public']['Tables']['stamps']['Row'], 'id' | 'checked_in_at'>

@@ -177,7 +177,7 @@ function MapFallback({
 
       {/* マップエリア（overflow:hidden + CSS transform でズーム・パン） */}
       <div className="flex-1 overflow-hidden"
-        style={{ backgroundImage: 'url(/bg-pattern.png)', backgroundSize: '200px', backgroundRepeat: 'repeat', backgroundColor: '#e8e0d5' }}>
+        style={{ backgroundColor: '#e8e0d5' }}>
         <div style={{
           position: 'relative', width: '100%', height: '100%',
           transform: `scale(${zoom}) translate(${pan.x}px, ${pan.y}px)`,

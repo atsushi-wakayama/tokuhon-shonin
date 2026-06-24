@@ -90,7 +90,7 @@ export function AvatarUpload({ userId, avatarUrl, initial }: Props) {
           style={{ backgroundColor: '#fdf0e8', border: '2px solid #8B4513' }}
         >
           {currentUrl ? (
-            <Image src={currentUrl} alt="アバター" fill className="object-cover" />
+            <Image src={currentUrl} alt="アバター" fill sizes="56px" className="object-cover" />
           ) : (
             <span className="text-xl font-bold" style={{ color: '#8B4513' }}>{initial}</span>
           )}

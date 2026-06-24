@@ -18,44 +18,41 @@ export async function submitMonument(
   const lng = parseFloat(formData.get('longitude') as string)
   if (isNaN(lat) || isNaN(lng)) return { error: '場所を指定してください' }
 
-  const prefecture = (formData.get('prefecture') as string) || ''
-  const address = (formData.get('address') as string) || null
-  const areaIdRaw = formData.get('area_id') as string
-  const description = (formData.get('description') as string) || null
-  const accessInfo = (formData.get('access_info') as string) || null
-  const photoFile = formData.get('photo') as File | null
+  const photoUrl = (formData.get('photo_url') as string) || null
+  const memo = (formData.get('memo') as string)?.trim() || null
+  const adminInfo = (formData.get('admin_info') as string)?.trim() || null
 
-  let imageUrls: string[] = []
-
-  if (photoFile && photoFile.size > 0) {
-    const ext = photoFile.name.split('.').pop() || 'jpg'
-    const path = `stamps/${user.id}/submission_${Date.now()}.${ext}`
-    const { error: uploadError } = await supabase.storage
-      .from('user-photos')
-      .upload(path, photoFile, { upsert: false })
-
-    if (uploadError) return { error: '写真のアップロードに失敗しました' }
-
-    const { data: urlData } = supabase.storage
-      .from('user-photos')
-      .getPublicUrl(path)
-    imageUrls = [urlData.publicUrl]
+  let adminInfoProvidedBy: string | null = null
+  if (adminInfo) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: profile } = await (supabase as any)
+      .from('profiles')
+      .select('nickname')
+      .eq('id', user.id)
+      .single()
+    adminInfoProvidedBy = profile?.nickname ?? null
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any).from('monuments').insert({
-    name,
-    location: `SRID=4326;POINT(${lng} ${lat})`,
-    prefecture,
-    address,
-    area_id: areaIdRaw ? parseInt(areaIdRaw) : null,
-    description,
-    access_info: accessInfo,
-    image_urls: imageUrls,
-    status: 'pending',
-    submitted_by: user.id,
-    is_verified: false,
-  })
+  const { error } = await (supabase as any)
+    .from('monuments')
+    .insert({
+      name,
+      location: `SRID=4326;POINT(${lng} ${lat})`,
+      prefecture: '',
+      address: null,
+      area_id: null,
+      description: null,
+      access_info: null,
+      image_urls: photoUrl ? [photoUrl] : [],
+      status: 'pending',
+      submitted_by: user.id,
+      is_verified: false,
+      admin_info: adminInfo,
+      admin_info_provided_by: adminInfoProvidedBy,
+      admin_info_provided_at: adminInfo ? new Date().toISOString() : null,
+      submission_memo: memo,
+    })
 
   if (error) {
     console.error('[submitMonument] INSERT error:', JSON.stringify(error))

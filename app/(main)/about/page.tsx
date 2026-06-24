@@ -1,15 +1,17 @@
+import Image from 'next/image'
+
 export default function AboutPage() {
   return (
     <div
       className="min-h-screen pb-8"
-      style={{ backgroundImage: 'url(/bg-pattern.png)', backgroundSize: '320px', backgroundRepeat: 'repeat', backgroundColor: '#f5f0eb' }}
+      style={{ backgroundColor: '#f5f0eb' }}
     >
       <div className="mx-auto max-w-md space-y-4 px-4 pt-5">
 
         {/* 徳本上人とは */}
         <div className="rounded-2xl p-4" style={{ border: '2px solid #d4c5b0', overflow: 'auto', backgroundColor: 'rgba(255,255,255,0.8)' }}>
           {/* 道具：右上に float */}
-          <img src="/tokuhon-items.png" alt="旅の道具"
+          <Image src="/tokuhon-items.webp" alt="旅の道具" width={151} height={200}
             style={{ float: 'right', height: '7rem', width: 'auto', marginLeft: '10px', marginBottom: '4px' }} />
 
           <h2 className="mb-2 text-lg" style={{ color: '#423629' }}>徳本上人とは</h2>
@@ -19,7 +21,7 @@ export default function AboutPage() {
           </p>
 
           {/* 僧侶：左下に float（テキストの後に配置） */}
-          <img src="/tokuhon-monk.png" alt="徳本上人"
+          <Image src="/tokuhon-monk.webp" alt="徳本上人" width={282} height={420}
             style={{ float: 'left', height: '9rem', width: 'auto', marginRight: '10px', marginTop: '4px' }} />
 
           <p className="text-base leading-relaxed" style={{ color: '#5a5a5a' }}>
@@ -40,12 +42,12 @@ export default function AboutPage() {
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-xl p-3 text-center" style={{ backgroundColor: 'rgba(255,255,255,0.8)', border: '1px solid #d4c5b0' }}>
               <p className="mb-2 text-sm" style={{ color: '#423629' }}>✅ 許された食べ物</p>
-              <img src="/food-allowed.png" alt="許された食べ物" className="mx-auto h-24 w-auto" />
+              <Image src="/food-allowed.webp" alt="許された食べ物" width={265} height={214} className="mx-auto h-24 w-auto" />
               <p className="mt-2 text-xs" style={{ color: '#5a5a5a' }}>木の実・きのこ・山菜</p>
             </div>
             <div className="rounded-xl p-3 text-center" style={{ backgroundColor: 'rgba(255,255,255,0.8)', border: '1px solid #d4c5b0' }}>
               <p className="mb-2 text-sm" style={{ color: '#423629' }}>❌ 断たれた食べ物</p>
-              <img src="/food-prohibited.png" alt="断たれた食べ物" className="mx-auto h-24 w-auto" />
+              <Image src="/food-prohibited.webp" alt="断たれた食べ物" width={244} height={251} className="mx-auto h-24 w-auto" />
               <p className="mt-2 text-xs" style={{ color: '#5a5a5a' }}>お米・小麦・豆類</p>
             </div>
           </div>
@@ -57,7 +59,7 @@ export default function AboutPage() {
             徳本文字
           </h2>
           {/* キャラアイコン：右下に float */}
-          <img src="/tokuhon-writer.png" alt="徳本文字を書く上人"
+          <Image src="/tokuhon-writer.webp" alt="徳本文字を書く上人" width={387} height={478}
             style={{ float: 'right', height: '9rem', width: 'auto', marginLeft: '10px', marginTop: '4px' }} />
           <p className="text-base leading-relaxed" style={{ color: '#5a5a5a' }}>
             通常の楷書とは異なる独特な丸みを帯びた書体で、特に終筆（最後の筆の運び）が跳ね上がるスタイル。優しく特徴的な字体が「縁起が良い」とされ、全国で<span style={{ color: '#b35c44' }}>1,500基以上</span>の石碑（名号碑）に刻まれている。
@@ -69,7 +71,7 @@ export default function AboutPage() {
           <h2 className="mb-3 text-lg" style={{ color: '#423629' }}>
             全国巡礼の旅
           </h2>
-          <img src="/tokuhon-journey.png" alt="全国巡礼" className="w-full rounded-xl mb-3" />
+          <Image src="/tokuhon-journey.webp" alt="全国巡礼" width={900} height={496} className="w-full rounded-xl mb-3" />
           <p className="text-base leading-relaxed" style={{ color: '#5a5a5a' }}>
             寛政6年（1794）頃から約20年かけて近畿、東海、関東、北陸、信州など全国を巡礼し、各地で念仏を広めました。40代以降は江戸（伝通院）を拠点に念仏布教を行い、関東地方を広く巡回しました。
           </p>
@@ -83,7 +85,7 @@ export default function AboutPage() {
           <p className="mb-4 text-base leading-relaxed" style={{ color: '#5a5a5a' }}>
             名号碑の多くは寺院の境内や墓地の一角に静かに立っています。周囲への配慮を忘れず、大切に保存されてきた石碑を傷つけないよう心がけてください。
           </p>
-          <img src="/tokuhon-manner.png" alt="名号碑めぐりのマナー" className="w-full rounded-xl" />
+          <Image src="/tokuhon-manner.webp" alt="名号碑めぐりのマナー" width={900} height={491} className="w-full rounded-xl" />
         </div>
 
       </div>
