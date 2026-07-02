@@ -471,7 +471,7 @@ export function SubmitForm({ backPath }: Props) {
             />
           </Field>
           <p className="mt-1.5 text-xs" style={{ color: '#5a5a5a' }}>
-            ※マイページのスタンプ帳で承認後に編集できます。
+            ※管理者の承認後、マイページのスタンプ帳で編集できます。
           </p>
         </div>
 
